@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Astah-Edition: pro
 Astah-Version: 6.6
-Bnd-LastModified: 1343367786156
+Bnd-LastModified: 1343370126843
 Build-Jdk: 1.6.0_33
 Built-By: kasaba
 Bundle-Activator: com.change_vision.astah.extension.plugin.svn_prototype
