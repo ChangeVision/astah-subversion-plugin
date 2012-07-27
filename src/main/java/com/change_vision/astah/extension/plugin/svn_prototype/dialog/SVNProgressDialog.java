@@ -1,13 +1,9 @@
 package com.change_vision.astah.extension.plugin.svn_prototype.dialog;
 
 import java.awt.BorderLayout;
-import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
-import java.awt.event.WindowStateListener;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -28,6 +24,8 @@ public class SVNProgressDialog extends KeyDialog {
         // ダイアログをモーダルで開く設定
         super(frame, true);
 
+        setLocationRelativeTo(frame);
+
         String title = Messages.getMessage("progress_default_title");
         String message = Messages.getMessage("progress_default_message");
         makeProgressDialog(title, message);
@@ -42,7 +40,6 @@ public class SVNProgressDialog extends KeyDialog {
 
     private void makeProgressDialog(String title, String message){
         setTitle(title);
-//        setSize(new Dimension(200, 150));
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         addWindowListener(new WindowListener() {
 			@Override
@@ -92,7 +89,6 @@ public class SVNProgressDialog extends KeyDialog {
         lblMessage = new JLabel(message);
         lblMessage.setPreferredSize(new Dimension(300, 20));
         messagePanel.add(lblMessage);
-//        Container contentPane = getContentPane();
         JPanel ProgressPanel = new JPanel(new BorderLayout());
         ProgressPanel.add(progressPanel, BorderLayout.NORTH);
         ProgressPanel.add(messagePanel, BorderLayout.SOUTH);

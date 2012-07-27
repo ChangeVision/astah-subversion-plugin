@@ -1,7 +1,6 @@
 package com.change_vision.astah.extension.plugin.svn_prototype.dialog;
 
 import java.awt.BorderLayout;
-import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -42,7 +41,7 @@ public class SVNSelectMergeDialog extends KeyDialog {
         Preferences preferences = SVNPreferences.getInstance();
 
         setTitle(Messages.getMessage("merge_dialog.title"));
-//        setBounds(100, 100, 310, 170);
+        setLocationRelativeTo(frame);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
         JPanel contentPanel  = new JPanel(new BorderLayout());

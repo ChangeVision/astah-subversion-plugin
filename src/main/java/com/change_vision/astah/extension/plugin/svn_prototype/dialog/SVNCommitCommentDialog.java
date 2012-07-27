@@ -1,7 +1,6 @@
 package com.change_vision.astah.extension.plugin.svn_prototype.dialog;
 
 import java.awt.BorderLayout;
-import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
@@ -30,6 +29,7 @@ public class SVNCommitCommentDialog extends KeyDialog {
 
         setTitle(Messages.getMessage("commit_comment_dialog.title"));
         setSize(new Dimension(410, 280));
+        setLocationRelativeTo(frame);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
         JPanel headerPanel = new JPanel();
