@@ -150,7 +150,7 @@ public class UpdateAction implements IPluginActionDelegate {
                 return false;
             }
 
-            long revision = entry.getRevision(); 
+            long revision = (utils.repos).getLatestRevision(); 
 
             // プロジェクトを開いていれば閉じる
             if (projectAccessor.hasProject()) {
