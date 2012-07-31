@@ -55,6 +55,16 @@ public class UpdateAction implements IPluginActionDelegate {
                 return null;
             }
 
+            int saveResult;
+            saveResult = JOptionPane.showConfirmDialog(null,
+                                                       Messages.getMessage("confirm_save_dialog.message"),
+                                                       Messages.getMessage("confirm_save_dialog.title"),
+                                                       JOptionPane.YES_NO_OPTION);
+
+            if (saveResult == JOptionPane.NO_OPTION){
+                return null;
+            }
+
             // SVNKitの初期化
             DAVRepositoryFactory.setup();
             SVNRepositoryFactoryImpl.setup();
@@ -67,7 +77,6 @@ public class UpdateAction implements IPluginActionDelegate {
             }
 
             projectAccessor.close();
-            //SVNClientManager scm = SVNClientManager.newInstance(SVNWCUtil.createDefaultOptions(true), utils.user, utils.password);
             SVNClientManager scm;
             if (SVNUtils.chkNullString(utils.password)){
                 scm = SVNClientManager.newInstance(SVNWCUtil.createDefaultOptions(true), utils.getAuthManager());
@@ -79,8 +88,6 @@ public class UpdateAction implements IPluginActionDelegate {
                 projectAccessor.open(pjPath);
 
                 JOptionPane.showMessageDialog(null, Messages.getMessage("info_message.update_complete"));
-//            } else {
-//                JOptionPane.showMessageDialog(null, Messages.getMessage("info_message.update_abend"));
             }
         } catch (ProjectLockedException pe) {
             JOptionPane.showMessageDialog(null, Messages.getMessage("err_message.common_lock_project"));
@@ -110,7 +117,7 @@ public class UpdateAction implements IPluginActionDelegate {
         } else {
             scm = SVNClientManager.newInstance(SVNWCUtil.createDefaultOptions(true), utils.user, utils.password);
         }
-//        SVNClientManager scm = SVNClientManager.newInstance(SVNWCUtil.createDefaultOptions(true), utils.user, utils.password);
+
         SVNUpdateClient client = scm.getUpdateClient();
 
         DefaultSVNOptions options = (DefaultSVNOptions) client.getOptions();
@@ -185,7 +192,6 @@ public class UpdateAction implements IPluginActionDelegate {
             String newFileName = pjPath + ".r" + revision + ".asta";
             fileRenameAction(pjPath + ".r" + revision, newFileName);
 
-//            final SVNProgressDialog diffDialog = new SVNProgressDialog((SVNUtils.getViewManager()).getMainFrame(),
             final SVNProgressDialog diffDialog = new SVNProgressDialog(parent,
                                                                        Messages.getMessage("progress_diff_title"),
                                                                        Messages.getMessage("progress_diff_message"));
@@ -204,7 +210,6 @@ public class UpdateAction implements IPluginActionDelegate {
             diffDialog.setVisible(true);
 
             // マージを行うか選択してもらう
-//            SVNSelectMergeDialog dialog = new SVNSelectMergeDialog((SVNUtils.getViewManager()).getMainFrame());
             SVNSelectMergeDialog dialog = new SVNSelectMergeDialog(parent);
             dialog.setResizable(false);
             dialog.setVisible(true);
@@ -214,25 +219,23 @@ public class UpdateAction implements IPluginActionDelegate {
             Preferences preferences = SVNPreferences.getInstance();
 
             // マージ処理用のオブジェクト作成
-//            final SVNProgressDialog mergeDialog = new SVNProgressDialog((SVNUtils.getViewManager()).getMainFrame(),
             final SVNProgressDialog mergeDialog = new SVNProgressDialog(parent,
                                                                         Messages.getMessage("progress_merge_title"),
                                                                         Messages.getMessage("progress_merge_message"));
-//            SVNMergeTask mergeTask = new SVNMergeTask(pjPath, arg0, scm.getWCClient(), projectAccessor, mergeDialog);
+
             SVNMergeTask mergeTask = new SVNMergeTask(pjPath, arg0, scm.getWCClient(), projectAccessor);
             mergeTask.setLatestRevision(revision);
             mergeTask.setSVNInfo(utils);
 
             int selected = 0;
             String strMergeKind = ""; 
-//            while (selected == 0) {
-                // 取得するまでループで待機
-                strMergeKind = preferences.get(SVNPreferences.KEY_MERGE_KIND, null);
-                if (strMergeKind != null) {
-                    selected = Integer.valueOf(strMergeKind);
-                    mergeTask.setSelected(selected);
-                }
-//            }
+
+            // 取得するまでループで待機
+            strMergeKind = preferences.get(SVNPreferences.KEY_MERGE_KIND, null);
+            if (strMergeKind != null) {
+                selected = Integer.valueOf(strMergeKind);
+                mergeTask.setSelected(selected);
+            }
 
             if (selected == SVNSelectMergeDialog.NO_MERGE) {
                 mergeDialog.setTitle(Messages.getMessage("progress_merge_cancel_title"));
@@ -253,8 +256,10 @@ public class UpdateAction implements IPluginActionDelegate {
                     }
                 }
             });
+
             mergeTask.execute();
             mergeDialog.setVisible(true);
+
             if (mergeDialog.interruptFlg) {
             	mergeTask.cancel(false);
             	mergeTask.setSelected(SVNSelectMergeDialog.NO_MERGE);
@@ -265,6 +270,7 @@ public class UpdateAction implements IPluginActionDelegate {
                 JOptionPane.showMessageDialog(null, Messages.getMessage("info_message.update_cancel"));
                 return false;
             }
+
             if (mergeTask.getSelected() == SVNSelectMergeDialog.NO_MERGE){
                 JOptionPane.showMessageDialog(null, Messages.getMessage("info_message.update_cancel"));
                 return false;

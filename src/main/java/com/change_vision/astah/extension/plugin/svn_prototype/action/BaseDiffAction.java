@@ -57,7 +57,6 @@ public class BaseDiffAction implements IPluginActionDelegate {
                 return null;
             }
 
-            //SVNClientManager scm = SVNClientManager.newInstance(SVNWCUtil.createDefaultOptions(true), utils.user, utils.password);
             SVNClientManager scm;
             if (utils.loginKind == SVNUtils.LOGIN_KIND_SSH && SVNUtils.chkNullString(utils.password)){
                 scm = SVNClientManager.newInstance(SVNWCUtil.createDefaultOptions(true), utils.getAuthManager());

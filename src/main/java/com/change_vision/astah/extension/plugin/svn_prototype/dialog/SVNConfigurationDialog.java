@@ -25,9 +25,9 @@ import javax.swing.JTextField;
 import javax.swing.border.BevelBorder;
 
 import org.tmatesoft.svn.core.SVNException;
-import org.tmatesoft.svn.core.SVNURL;
-import org.tmatesoft.svn.core.wc.SVNClientManager;
-import org.tmatesoft.svn.core.wc.SVNStatus;
+//import org.tmatesoft.svn.core.SVNURL;
+//import org.tmatesoft.svn.core.wc.SVNClientManager;
+//import org.tmatesoft.svn.core.wc.SVNStatus;
 
 import com.change_vision.astah.extension.plugin.svn_prototype.Messages;
 import com.change_vision.astah.extension.plugin.svn_prototype.dialog.KeyDialog;
@@ -46,23 +46,23 @@ public class SVNConfigurationDialog extends KeyDialog {
     private JTextField astah_home;
     private JTextField repository;
     private JTextField basicUser;
-    private JTextField sslUser;
+//    private JTextField sslUser;
     private JTextField sshUser;
     private JTextField noAuthUser;
     private JTextField key_file_path;
 
     private JPasswordField basicPassword;
-    private JPasswordField sslPassword;
+//    private JPasswordField sslPassword;
     private JPasswordField sshPassword;
 
     private JCheckBox basicSavePw;
-    private JCheckBox sslSavePw;
+//    private JCheckBox sslSavePw;
     private JCheckBox sshSavePw;
 
     private JButton keyFileButton;
 
     private JRadioButton basicRadio;
-    private JRadioButton sslRadio;
+//    private JRadioButton sslRadio;
     private JRadioButton sshRadio;
     private JRadioButton noAuthRadio;
 
@@ -265,18 +265,6 @@ public class SVNConfigurationDialog extends KeyDialog {
                         }
 
                         loginKind = SVNUtils.LOGIN_KIND_BASIC;
-//                    } else if (sslRadio.isSelected()) {
-//                        user = sslUser.getText();
-//
-//                        if (sslSavePw.isSelected()){
-//                            password = String.valueOf(sslPassword.getPassword());
-//                            if (SVNUtils.chkNullString(password)) {
-//                                JOptionPane.showMessageDialog(null, Messages.getMessage("err_message.config_not_entered_password"));
-//                                return;
-//                            }
-//                        }
-//
-//                        loginKind = SVNUtils.LOGIN_KIND_SSL;
                     } else if (sshRadio.isSelected()) {
                         user = sshUser.getText();
 
@@ -329,7 +317,6 @@ public class SVNConfigurationDialog extends KeyDialog {
                     preferences.flush();
 
                     // パスワード入力可能な場合のみ、保存した内容を元にログインチェック
-//                    if (basicSavePw.isSelected() || sslSavePw.isSelected() || sshSavePw.isSelected()){
                     if (basicSavePw.isSelected() || sshSavePw.isSelected()){
                         // 保存してあるSubversionログイン情報取得
                         SVNUtils utils = new SVNUtils();
@@ -452,80 +439,80 @@ public class SVNConfigurationDialog extends KeyDialog {
         return basicAuthPanel;
     }
 
-    private JPanel getSSLAuthPanel(Preferences preferences, BevelBorder border, int selected) throws SVNException, ProjectNotFoundException, ClassNotFoundException, UnsupportedEncodingException {
-        JPanel sslAuthPanel = new JPanel();
-        JPanel userPanel       = new JPanel();
-        JPanel passwordPanel   = new JPanel();
-
-        sslAuthPanel.setLayout(new BorderLayout());
-        sslAuthPanel.setBorder(border);
-
-        sslRadio = new JRadioButton(Messages.getMessage("login_dialog.ssl_auth_label"), false);
-        sslRadio.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-            	controllContentEnabled(SVNUtils.LOGIN_KIND_SSL);
-            }
-        });
-        sslRadio.setSelected(selected == SVNUtils.LOGIN_KIND_SSL);
-        sslAuthPanel.add(sslRadio, BorderLayout.NORTH);
-
-        bGroup.add(sslRadio);
-
-        // SVNユーザー
-        String userName = getDefaultString(SVNPreferences.KEY_USER_NAME, preferences);
-        JLabel lblUser = new JLabel(Messages.getMessage("login_dialog.user_label"));
-        lblUser.setPreferredSize(new Dimension(LABEL_WIDTH, LABEL_HEIGHT));
-        if (SVNUtils.chkNullString(userName) || selected != SVNUtils.LOGIN_KIND_SSL) {
-            sslUser = new JTextField(50);
-        } else {
-        	sslUser = new JTextField(userName, 50);
-        }
-        userPanel.add(lblUser);
-        userPanel.add(sslUser);
-
-        // SVNパスワード
-        String pw = getDefaultString(SVNPreferences.KEY_PASSWORD, preferences);
-        JLabel lblPassword = new JLabel(Messages.getMessage("login_dialog.password_label"));
-        lblPassword.setPreferredSize(new Dimension(LABEL_WIDTH, LABEL_HEIGHT));
-        if (SVNUtils.chkNullString(pw) || selected != SVNUtils.LOGIN_KIND_SSL) {
-            sslPassword = new JPasswordField(36);
-            // チェックボックスをoffに設定
-            sslSavePw = new JCheckBox(Messages.getMessage("login_dialog.save_password_label"), false);
-            // パスワード入力欄を編集不可に設定
-            sslPassword.setEnabled(false);
-        } else {
-            pw = SVNUtils.decript(pw.getBytes(SVNUtils.SAVE_PASSWORD_CHARSET));
-            sslPassword = new JPasswordField(pw, 36);
-            // チェックボックスをonに設定
-            sslSavePw = new JCheckBox(Messages.getMessage("login_dialog.save_password_label"), true);
-            // パスワード入力欄を編集可に設定
-            sslPassword.setEnabled(true);
-        }
-        passwordPanel.add(lblPassword);
-        passwordPanel.add(sslPassword);
-
-        // SVNパスワードを保存する/しない を選択するチェックボックス
-        sslSavePw.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // クリックされたチェックボックスの状態を取得
-                JCheckBox checkbox = (JCheckBox)e.getSource();
-                if (checkbox.isSelected()) {
-                	sslPassword.setEnabled(true);
-                } else {
-                	sslPassword.setEnabled(false);
-                }
-
-            }
-        });
-        passwordPanel.add(sslSavePw);
-
-        sslAuthPanel.add(userPanel, BorderLayout.CENTER);
-        sslAuthPanel.add(passwordPanel, BorderLayout.SOUTH);
-
-        return sslAuthPanel;
-    }
+//    private JPanel getSSLAuthPanel(Preferences preferences, BevelBorder border, int selected) throws SVNException, ProjectNotFoundException, ClassNotFoundException, UnsupportedEncodingException {
+//        JPanel sslAuthPanel = new JPanel();
+//        JPanel userPanel       = new JPanel();
+//        JPanel passwordPanel   = new JPanel();
+//
+//        sslAuthPanel.setLayout(new BorderLayout());
+//        sslAuthPanel.setBorder(border);
+//
+//        sslRadio = new JRadioButton(Messages.getMessage("login_dialog.ssl_auth_label"), false);
+//        sslRadio.addActionListener(new ActionListener() {
+//            @Override
+//            public void actionPerformed(ActionEvent e) {
+//            	controllContentEnabled(SVNUtils.LOGIN_KIND_SSL);
+//            }
+//        });
+//        sslRadio.setSelected(selected == SVNUtils.LOGIN_KIND_SSL);
+//        sslAuthPanel.add(sslRadio, BorderLayout.NORTH);
+//
+//        bGroup.add(sslRadio);
+//
+//        // SVNユーザー
+//        String userName = getDefaultString(SVNPreferences.KEY_USER_NAME, preferences);
+//        JLabel lblUser = new JLabel(Messages.getMessage("login_dialog.user_label"));
+//        lblUser.setPreferredSize(new Dimension(LABEL_WIDTH, LABEL_HEIGHT));
+//        if (SVNUtils.chkNullString(userName) || selected != SVNUtils.LOGIN_KIND_SSL) {
+//            sslUser = new JTextField(50);
+//        } else {
+//        	sslUser = new JTextField(userName, 50);
+//        }
+//        userPanel.add(lblUser);
+//        userPanel.add(sslUser);
+//
+//        // SVNパスワード
+//        String pw = getDefaultString(SVNPreferences.KEY_PASSWORD, preferences);
+//        JLabel lblPassword = new JLabel(Messages.getMessage("login_dialog.password_label"));
+//        lblPassword.setPreferredSize(new Dimension(LABEL_WIDTH, LABEL_HEIGHT));
+//        if (SVNUtils.chkNullString(pw) || selected != SVNUtils.LOGIN_KIND_SSL) {
+//            sslPassword = new JPasswordField(36);
+//            // チェックボックスをoffに設定
+//            sslSavePw = new JCheckBox(Messages.getMessage("login_dialog.save_password_label"), false);
+//            // パスワード入力欄を編集不可に設定
+//            sslPassword.setEnabled(false);
+//        } else {
+//            pw = SVNUtils.decript(pw.getBytes(SVNUtils.SAVE_PASSWORD_CHARSET));
+//            sslPassword = new JPasswordField(pw, 36);
+//            // チェックボックスをonに設定
+//            sslSavePw = new JCheckBox(Messages.getMessage("login_dialog.save_password_label"), true);
+//            // パスワード入力欄を編集可に設定
+//            sslPassword.setEnabled(true);
+//        }
+//        passwordPanel.add(lblPassword);
+//        passwordPanel.add(sslPassword);
+//
+//        // SVNパスワードを保存する/しない を選択するチェックボックス
+//        sslSavePw.addActionListener(new ActionListener() {
+//            @Override
+//            public void actionPerformed(ActionEvent e) {
+//                // クリックされたチェックボックスの状態を取得
+//                JCheckBox checkbox = (JCheckBox)e.getSource();
+//                if (checkbox.isSelected()) {
+//                	sslPassword.setEnabled(true);
+//                } else {
+//                	sslPassword.setEnabled(false);
+//                }
+//
+//            }
+//        });
+//        passwordPanel.add(sslSavePw);
+//
+//        sslAuthPanel.add(userPanel, BorderLayout.CENTER);
+//        sslAuthPanel.add(passwordPanel, BorderLayout.SOUTH);
+//
+//        return sslAuthPanel;
+//    }
 
     private JPanel getSSHAuthPanel(Preferences preferences, BevelBorder border, int selected) throws SVNException, ProjectNotFoundException, ClassNotFoundException, UnsupportedEncodingException {
         JPanel sshAuthPanel  = new JPanel();
@@ -686,56 +673,37 @@ public class SVNConfigurationDialog extends KeyDialog {
 
         if (key.equals(SVNPreferences.KEY_REPOSITORY_URL)) {
             // 開いているプロジェクトのカレントディレクトリを取得
-            int markIndex = 0;
-            SVNURL url = null;
+//            int markIndex = 0;
+//            SVNURL url = null;
             ProjectAccessor projectAccessor = ProjectAccessorFactory.getProjectAccessor();
             String pjPath = projectAccessor.getProjectPath();
 
             if (!SVNUtils.chkNotSaveProject(pjPath)) {
                 try {
-                    SVNStatus status = SVNClientManager.newInstance().getStatusClient().doStatus(new File(pjPath), false);
-                    if (status != null) {
-                        url = status.getURL();
-                        if (url == null) {
-                            markIndex = pjPath.lastIndexOf(File.separator);
-                            String path = pjPath.substring(0, markIndex);
-                            status = SVNClientManager.newInstance().getStatusClient().doStatus(new File(path), false);
-                            if (status != null) {
-                                url = status.getURL();
-                                property = url.toDecodedString();
-                            }
-                        } else {
-                            property = url.toDecodedString();
-                            markIndex = property.lastIndexOf("/");
-                            property = property.substring(0, markIndex + 1);
-                        }
+//                    SVNStatus status = SVNClientManager.newInstance().getStatusClient().doStatus(new File(pjPath), false);
+//                    if (status != null) {
+//                        url = status.getURL();
+//                        if (url == null) {
+//                            markIndex = pjPath.lastIndexOf(File.separator);
+//                            String path = pjPath.substring(0, markIndex);
+//                            status = SVNClientManager.newInstance().getStatusClient().doStatus(new File(path), false);
+//                            if (status != null) {
+//                                url = status.getURL();
+//                                property = url.toDecodedString();
+//                            }
+//                        } else {
+//                            property = url.toDecodedString();
+//                            markIndex = property.lastIndexOf("/");
+//                            property = property.substring(0, markIndex + 1);
+//                        }
+//                    }
+                    String fileURL = SVNUtils.getDefaultRepositoryURL(pjPath);
+                    if (!SVNUtils.chkNullString(fileURL)) {
+                        property = fileURL;
                     }
-
                 } catch (SVNException se) {
-                    if ((se.getMessage()).matches("^svn: E155007:.*")){
-                        // フォルダの方をチェック
-                        markIndex = pjPath.lastIndexOf(File.separator);
-                        String filePath = pjPath.substring(0, markIndex + 1);
-                        SVNStatus status = SVNClientManager.newInstance().getStatusClient().doStatus(new File(filePath), true);
-                        if (status != null) {
-                            url = status.getURL();
-                            if (url == null) {
-                                markIndex = pjPath.lastIndexOf(File.separator);
-                                String path = pjPath.substring(0, markIndex);
-                                status = SVNClientManager.newInstance().getStatusClient().doStatus(new File(path), false);
-                                if (status != null) {
-                                    url = status.getURL();
-                                }
-                            }
-                        }
-
-                        if (url != null) {
-                            property = url.toDecodedString();
-                        }
-                    } else {
-                        se.printStackTrace();
-                        throw se;
-                    }
+                    se.printStackTrace();
+                    throw se;
                 }
             } else {
                 errFlg = true;

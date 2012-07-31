@@ -28,7 +28,6 @@ import org.tmatesoft.svn.core.io.SVNRepository;
 import org.tmatesoft.svn.core.io.SVNRepositoryFactory;
 import org.tmatesoft.svn.core.io.diff.SVNDeltaGenerator;
 import org.tmatesoft.svn.core.wc.SVNClientManager;
-//import org.tmatesoft.svn.core.wc.SVNWCUtil;
 
 import com.change_vision.astah.extension.plugin.svn_prototype.Messages;
 import com.change_vision.astah.extension.plugin.svn_prototype.dialog.SVNCommitCommentDialog;
@@ -53,6 +52,16 @@ public class CommitAction implements IPluginActionDelegate {
             String pjPath = projectAccessor.getProjectPath();
 
             if (SVNUtils.chkNotSaveProject(pjPath)) {
+                return null;
+            }
+
+            int saveResult;
+            saveResult = JOptionPane.showConfirmDialog(null,
+                                                       Messages.getMessage("confirm_save_dialog.message"),
+                                                       Messages.getMessage("confirm_save_dialog.title"),
+                                                       JOptionPane.YES_NO_OPTION);
+
+            if (saveResult == JOptionPane.NO_OPTION){
                 return null;
             }
 
@@ -81,7 +90,7 @@ public class CommitAction implements IPluginActionDelegate {
             SVNRepository latestRepos = SVNRepositoryFactory.create(SVNURL.parseURIDecoded(fileURL));
 
             ISVNAuthenticationManager authManager;
-            //authManager = SVNWCUtil.createDefaultAuthenticationManager(utils.user, utils.password);
+
             if (utils.loginKind == SVNUtils.LOGIN_KIND_SSH && SVNUtils.chkNullString(utils.password)){
                 authManager = new BasicAuthenticationManager(new SVNAuthentication[] {new SVNUserNameAuthentication(utils.user, false, SVNURL.parseURIEncoded(utils.repository), false),
                                                                                       new SVNSSHAuthentication(utils.user, new File(utils.keyFilePath), null, -1, false, SVNURL.parseURIEncoded(utils.repository), false)}

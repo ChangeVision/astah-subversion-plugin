@@ -2,8 +2,6 @@ package com.change_vision.astah.extension.plugin.svn_prototype;
 
 import java.io.BufferedReader;
 import java.io.File;
-//import java.io.FileNotFoundException;
-//import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -13,15 +11,7 @@ import java.util.prefs.Preferences;
 
 import javax.swing.SwingWorker;
 
-//import org.tmatesoft.svn.core.SVNDepth;
-//import org.tmatesoft.svn.core.SVNException;
-//import org.tmatesoft.svn.core.auth.ISVNAuthenticationManager;
-//import org.tmatesoft.svn.core.wc.ISVNOptions;
-//import org.tmatesoft.svn.core.wc.SVNDiffClient;
-//import org.tmatesoft.svn.core.wc.SVNRevision;
-
 import com.change_vision.astah.extension.plugin.svn_prototype.util.SVNPreferences;
-//import com.change_vision.astah.extension.plugin.svn_prototype.util.SVNUtils;
 
 public class SVNDiffTask extends SwingWorker<List<Integer>, Integer> {
 
@@ -56,7 +46,6 @@ public class SVNDiffTask extends SwingWorker<List<Integer>, Integer> {
             String os = System.getProperty("os.name");
 
             if (os.matches("^Windows.*")) {
-                //commandExtension = ".bat";
                 commandExtension = "w.exe";
             }
             String command = commandPath + File.separator + "astah-command" + commandExtension;
@@ -96,10 +85,6 @@ public class SVNDiffTask extends SwingWorker<List<Integer>, Integer> {
                 processResult = processResult + resultLine + "\n";
             }
 
-//            if (!SVNUtils.chkNullString(processResult)){
-//                System.out.println(processResult);
-//            }
-
             p.waitFor();
 
             setProgress(100);
@@ -135,20 +120,4 @@ public class SVNDiffTask extends SwingWorker<List<Integer>, Integer> {
     public void resetFinishFlg() {
         finishFlg = false;
     }
-
-//    public static boolean chkSameFile(String fileName1, String fileName2, ISVNAuthenticationManager authManager, ISVNOptions options){
-//    	try {
-//    	    SVNDiffClient diffClient = new SVNDiffClient(authManager, options);
-//    	    FileOutputStream os = new FileOutputStream("C:\\diffResult.txt");
-//    	    diffClient.doDiff(new File(fileName1), SVNRevision.WORKING, new File(fileName2), SVNRevision.COMMITTED, SVNDepth.INFINITY, true, os, null);
-//    	    os.close();
-//    	} catch (SVNException se) {
-//    		se.printStackTrace();
-//    	} catch (FileNotFoundException fnfe) {
-//			fnfe.printStackTrace();
-//		} catch (IOException ie) {
-//			ie.printStackTrace();
-//		}
-//    	return false;
-//    }
 }

@@ -24,12 +24,15 @@ import org.tmatesoft.svn.core.auth.SVNSSHAuthentication;
 import org.tmatesoft.svn.core.auth.SVNUserNameAuthentication;
 import org.tmatesoft.svn.core.io.SVNRepository;
 import org.tmatesoft.svn.core.io.SVNRepositoryFactory;
+import org.tmatesoft.svn.core.wc.SVNClientManager;
+import org.tmatesoft.svn.core.wc.SVNStatus;
 import org.tmatesoft.svn.core.wc.SVNWCUtil;
 
 import com.change_vision.astah.extension.plugin.svn_prototype.Messages;
 import com.change_vision.astah.extension.plugin.svn_prototype.dialog.SVNConfigurationDialog;
 import com.change_vision.astah.extension.plugin.svn_prototype.dialog.SVNPasswordDialog;
 import com.change_vision.jude.api.inf.exception.InvalidUsingException;
+import com.change_vision.jude.api.inf.exception.ProjectNotFoundException;
 import com.change_vision.jude.api.inf.project.ProjectAccessor;
 import com.change_vision.jude.api.inf.project.ProjectAccessorFactory;
 import com.change_vision.jude.api.inf.view.IViewManager;
@@ -69,7 +72,8 @@ public class SVNUtils {
             Preferences preferences = SVNPreferences.getInstace(SVNConfigurationDialog.class);
 
             loginKind   = Integer.parseInt(preferences.get(SVNPreferences.KEY_LOGIN_KIND, null));
-            repository  = preferences.get(SVNPreferences.KEY_REPOSITORY_URL, null);
+//            repository  = preferences.get(SVNPreferences.KEY_REPOSITORY_URL, null);
+            repository  = getDefaultRepositoryURL();
             user        = preferences.get(SVNPreferences.KEY_USER_NAME, null);
             password    = preferences.get(SVNPreferences.KEY_PASSWORD, null);
             keyFilePath = preferences.get(SVNPreferences.KEY_KEYFILE_PATH, null);
@@ -103,11 +107,9 @@ public class SVNUtils {
                  && !SVNUtils.chkNullString(user)
                  && !SVNUtils.chkNullString(password)) {
                     // SVNRepositoryのインスタンスを取得
-                    //repos = getRepos(repository, user, password);
                     SVNURL surl = SVNURL.parseURIEncoded(repository);
                     repos = SVNRepositoryFactory.create(surl);
 
-                    //ISVNAuthenticationManager authManager = SVNWCUtil.createDefaultAuthenticationManager(user, password);
                     authManager = new BasicAuthenticationManager(new SVNAuthentication[] {new SVNUserNameAuthentication(user, false, surl, false),
                                                                                           new SVNPasswordAuthentication(user, password, false, surl, false)}
                                                                 );
@@ -129,26 +131,62 @@ public class SVNUtils {
                                                                                          );
                     repos.setAuthenticationManager(authManager);
                 } else if (!SVNUtils.chkNullString(repository)
-                        && !SVNUtils.chkNullString(user)
-                        && !SVNUtils.chkNullString(password)) {
-                    // SVNRepositoryのインスタンスを取得
-                    SVNURL surl = SVNURL.parseURIEncoded(repository);
-                    repos = SVNRepositoryFactory.create(surl);
+                        && !SVNUtils.chkNullString(user)) {
 
-                    authManager = new BasicAuthenticationManager(new SVNAuthentication[] {new SVNUserNameAuthentication(user, false, surl, false),
-                                                                                          new SVNPasswordAuthentication(user, password, false, surl, false)}
-                                                                                         );
-                    repos.setAuthenticationManager(authManager);
+                    if (SVNUtils.chkNullString(password)){
+                        SVNPasswordDialog pwDialog = new SVNPasswordDialog((SVNUtils.getViewManager()).getMainFrame());
+                        pwDialog.setVisible(true);
+                        password = pwDialog.getPassword();
+
+                        if (SVNUtils.chkNullString(password) && SVNUtils.chkNullString(keyFilePath)){
+                            JOptionPane.showMessageDialog(null, cancelMessage);
+                            return false;
+                        }
+                    } else {
+                        password = SVNUtils.decript(password.getBytes(SAVE_PASSWORD_CHARSET));
+                    }
+
+                    if (!SVNUtils.chkNullString(repository)
+                     && !SVNUtils.chkNullString(user)
+                     && !SVNUtils.chkNullString(password)) {
+                        // SVNRepositoryのインスタンスを取得
+                        SVNURL surl = SVNURL.parseURIEncoded(repository);
+                        repos = SVNRepositoryFactory.create(surl);
+
+                        authManager = new BasicAuthenticationManager(new SVNAuthentication[] {new SVNUserNameAuthentication(user, false, surl, false),
+                                                                                              new SVNPasswordAuthentication(user, password, false, surl, false)}
+                                                                                             );
+                        repos.setAuthenticationManager(authManager);
+                    } else {
+                        JOptionPane.showMessageDialog(null, cancelMessage);
+                        return false;
+                    }
                 } else {
                     JOptionPane.showMessageDialog(null, cancelMessage);
                     return false;
                 }
-            } 
+            } else if (loginKind == LOGIN_KIND_NOAUTH) {
+                if (!SVNUtils.chkNullString(repository)
+                 && !SVNUtils.chkNullString(user)) {
+                    // SVNRepositoryのインスタンスを取得
+                    SVNURL surl = SVNURL.parseURIEncoded(repository);
+                    repos = SVNRepositoryFactory.create(surl);
+
+                    authManager = new BasicAuthenticationManager(new SVNAuthentication[] {new SVNUserNameAuthentication(user, false, surl, false)});
+                    repos.setAuthenticationManager(authManager);
+                }
+            }
         } catch (SVNException se) {
             JOptionPane.showMessageDialog(null, Messages.getMessage("err_message.common_svn_error"));
             return false;
         } catch (UnsupportedEncodingException uee) {
             JOptionPane.showMessageDialog(null, Messages.getMessage("err_message.common_incorrect_password"));
+            return false;
+        } catch(ProjectNotFoundException pe) {
+            JOptionPane.showMessageDialog(null, Messages.getMessage("err_message.common_not_open_project"));
+            return false;
+        } catch (ClassNotFoundException cnfe){
+            JOptionPane.showMessageDialog(null, Messages.getMessage("err_message.common_class_not_found"));
             return false;
         }
         return true;
@@ -284,5 +322,35 @@ public class SVNUtils {
 
     public ISVNAuthenticationManager getAuthManager() {
         return authManager;
+    }
+
+    public static String getDefaultRepositoryURL() throws SVNException, ClassNotFoundException, ProjectNotFoundException {
+        ProjectAccessor projectAccessor = ProjectAccessorFactory.getProjectAccessor();
+        String pjPath = projectAccessor.getProjectPath();
+        return getDefaultRepositoryURL(pjPath);
+    }
+
+    public static String getDefaultRepositoryURL(String filePath) throws SVNException {
+        int markIndex;
+        String property = null;
+        SVNURL url;
+        SVNStatus status = SVNClientManager.newInstance().getStatusClient().doStatus(new File(filePath), false);
+        if (status != null) {
+            url = status.getURL();
+            if (url == null) {
+                markIndex = filePath.lastIndexOf(File.separator);
+                String path = filePath.substring(0, markIndex);
+                status = SVNClientManager.newInstance().getStatusClient().doStatus(new File(path), false);
+                if (status != null) {
+                    url = status.getURL();
+                    property = url.toDecodedString();
+                }
+            } else {
+                property = url.toDecodedString();
+                markIndex = property.lastIndexOf("/");
+                property = property.substring(0, markIndex + 1);
+            }
+        }
+        return property;
     }
 }

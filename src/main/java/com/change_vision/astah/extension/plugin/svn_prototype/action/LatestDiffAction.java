@@ -79,14 +79,6 @@ public class LatestDiffAction implements IPluginActionDelegate {
                                                                        Messages.getMessage("progress_diff_title"),
                                                                        Messages.getMessage("progress_diff_message"));
 
-            // 差分があるか調べる
-//            if (SVNDiffTask.chkSameFile(pjPath, workFile, utils.getAuthManager(), SVNWCUtil.createDefaultOptions(true))) {
-//            	// 差分なし
-//            	System.out.println("no different!");
-//            } else {
-//            	// 差分あり
-//            	System.out.println("different!");
-//            }
             // 差分表示
             SVNDiffTask diffTask = new SVNDiffTask(pjPath, workFile, true);
             diffTask.addPropertyChangeListener(new PropertyChangeListener() {
@@ -101,7 +93,6 @@ public class LatestDiffAction implements IPluginActionDelegate {
             diffTask.execute();
             diffDialog.setVisible(true);
         } catch (SVNException se){
-            se.printStackTrace();
             if (!SVNUtils.chkLoginError(se)){
                 JOptionPane.showMessageDialog(null, Messages.getMessage("err_message.common_svn_error"));
             }

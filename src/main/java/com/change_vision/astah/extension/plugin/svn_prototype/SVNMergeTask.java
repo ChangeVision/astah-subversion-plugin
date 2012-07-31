@@ -11,7 +11,6 @@ import org.tmatesoft.svn.core.SVNException;
 import org.tmatesoft.svn.core.wc.SVNWCClient;
 
 import com.change_vision.astah.extension.plugin.svn_prototype.action.UpdateAction;
-//import com.change_vision.astah.extension.plugin.svn_prototype.dialog.SVNProgressDialog;
 import com.change_vision.astah.extension.plugin.svn_prototype.dialog.SVNSelectMergeDialog;
 import com.change_vision.astah.extension.plugin.svn_prototype.util.SVNUtils;
 import com.change_vision.jude.api.inf.exception.InvalidEditingException;
@@ -36,17 +35,7 @@ public class SVNMergeTask extends SwingWorker<List<Integer>, Integer> {
 
     private ProjectAccessor projectAccessor = null;
 
-//    private SVNProgressDialog dialog = null;
     private SVNUtils utils = null;
-
-//    public SVNMergeTask(String pjPath, IWindow window, SVNWCClient wcClient,
-//                        ProjectAccessor projectAccessor, SVNProgressDialog dialog) throws SVNException{
-//            this.pjPath = pjPath;
-//            this.window = window;
-//            this.wcClient = wcClient;
-//            this.projectAccessor = projectAccessor;
-//            this.dialog = dialog;
-//    }
 
     public SVNMergeTask(String pjPath, IWindow window, SVNWCClient wcClient, ProjectAccessor projectAccessor) throws SVNException{
         this.pjPath = pjPath;
@@ -74,7 +63,7 @@ public class SVNMergeTask extends SwingWorker<List<Integer>, Integer> {
                                                     ClassNotFoundException, ProjectLockedException
     {
         // 開いているプロジェクトのパス、ファイル名を取得
-        int markIndex = pjPath.lastIndexOf("\\");
+        int markIndex = pjPath.lastIndexOf(File.separator);
         String fileName = pjPath.substring(markIndex + 1);
         String filePath = pjPath.substring(0, markIndex + 1);
         String workFile = filePath + "work." + fileName;
