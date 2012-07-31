@@ -194,7 +194,7 @@ public class SVNConfigurationDialog extends KeyDialog {
         } else {
             astah_home = new JTextField(homePath, 34);
         }
-        astah_home.setEditable(false);
+//        astah_home.setEditable(false);
 
         // 参照ボタンの設定
         JButton fileButton = new JButton(Messages.getMessage("file"));
@@ -204,6 +204,9 @@ public class SVNConfigurationDialog extends KeyDialog {
             public void actionPerformed(ActionEvent e) {
                 JFileChooser chooser = new JFileChooser();
                 chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+                if (!SVNUtils.chkNullString(astah_home.getText())){
+                    chooser.setCurrentDirectory(new File(astah_home.getText()));
+                }
 
                 int selected = chooser.showOpenDialog(parent);
                 if (selected == JFileChooser.APPROVE_OPTION){

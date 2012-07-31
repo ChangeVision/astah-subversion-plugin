@@ -9,6 +9,7 @@ import java.io.OutputStream;
 import java.util.List;
 import java.util.prefs.Preferences;
 
+import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
 
 import com.change_vision.astah.extension.plugin.svn_prototype.util.SVNPreferences;
@@ -48,7 +49,14 @@ public class SVNDiffTask extends SwingWorker<List<Integer>, Integer> {
             if (os.matches("^Windows.*")) {
                 commandExtension = "w.exe";
             }
-            String command = commandPath + File.separator + "astah-command" + commandExtension;
+
+            String command;
+            if (commandPath.endsWith(File.separator)){
+                command = commandPath;
+            } else {
+            	command = commandPath + File.separator;
+            }
+            command = command + "astah-command" + commandExtension;
 
             String[] diffCommand = new String[]{command, "-diff", oldFile, newFile};
 
@@ -98,8 +106,10 @@ public class SVNDiffTask extends SwingWorker<List<Integer>, Integer> {
             finishFlg = true;
         } catch(IOException ie) {
             ie.printStackTrace();
+            JOptionPane.showMessageDialog(null, Messages.getMessage("err_message.common_exception_from_commandline_tool") + " IOException");
         } catch(InterruptedException ine) {
             ine.printStackTrace();
+            JOptionPane.showMessageDialog(null, Messages.getMessage("err_message.common_exception_from_commandline_tool") + " InterruptedException");
         }
         return null;
     }
