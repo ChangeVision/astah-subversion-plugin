@@ -55,13 +55,8 @@ public class CommitAction implements IPluginActionDelegate {
                 return null;
             }
 
-            int saveResult;
-            saveResult = JOptionPane.showConfirmDialog(null,
-                                                       Messages.getMessage("confirm_save_dialog.message"),
-                                                       Messages.getMessage("confirm_save_dialog.title"),
-                                                       JOptionPane.YES_NO_OPTION);
-
-            if (saveResult == JOptionPane.NO_OPTION){
+            if (SVNUtils.chkEditingProject()){
+                JOptionPane.showMessageDialog(null, Messages.getMessage("confirm_save_dialog.message"));
                 return null;
             }
 

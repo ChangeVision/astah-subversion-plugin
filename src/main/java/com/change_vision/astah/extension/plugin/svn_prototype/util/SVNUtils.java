@@ -12,6 +12,7 @@ import javax.crypto.Cipher;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 import org.tmatesoft.svn.core.SVNException;
@@ -352,5 +353,28 @@ public class SVNUtils {
             }
         }
         return property;
+    }
+
+    public static boolean chkEditingProject(){
+        /* 
+         * ********************************************************
+         * APIに開いているプロジェクトが編集中かを取得する仕組みがないため、 
+         * 暫定対応として編集中を示すマーカー「(*)」がついているかどうかで判別する
+         * ********************************************************
+         */
+        JFrame frame = (getViewManager()).getMainFrame();
+        String title = frame.getTitle();
+        String marker = "(*)";
+
+        if (title.endsWith(marker)){
+            return true;
+        }
+        return false;
+    }
+
+    public static String escapeSpaceForMac(String origin){
+        String strEscape = null;
+        strEscape = origin.replaceAll(" ", "\\\\ ");
+        return strEscape;
     }
 }
