@@ -13,7 +13,7 @@ import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
 
 import com.change_vision.astah.extension.plugin.svn_prototype.util.SVNPreferences;
-import com.change_vision.astah.extension.plugin.svn_prototype.util.SVNUtils;
+//import com.change_vision.astah.extension.plugin.svn_prototype.util.SVNUtils;
 
 public class SVNDiffTask extends SwingWorker<List<Integer>, Integer> {
 
@@ -75,10 +75,10 @@ public class SVNDiffTask extends SwingWorker<List<Integer>, Integer> {
 
             if (os.matches("^Windows.*")) {
                 commandExtension = "w.exe";
-            } else {
-                commandPath = SVNUtils.escapeSpaceForMac(commandPath);
-                oldFile     = SVNUtils.escapeSpaceForMac(oldFile);
-                newFile     = SVNUtils.escapeSpaceForMac(newFile);
+//            } else {
+//                commandPath = SVNUtils.escapeSpaceForMac(commandPath);
+//                oldFile     = SVNUtils.escapeSpaceForMac(oldFile);
+//                newFile     = SVNUtils.escapeSpaceForMac(newFile);
             }
 
             String command;
