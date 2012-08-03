@@ -374,7 +374,7 @@ public class SVNUtils {
 
     public static String escapeSpaceForMac(String origin){
         String strEscape = null;
-        strEscape = origin.replaceAll(" ", "\\\\ ");
+        strEscape = origin.replaceAll(" ", "\\ ");
         return strEscape;
     }
 }

@@ -43,9 +43,35 @@ public class SVNDiffTask extends SwingWorker<List<Integer>, Integer> {
             // Preferences のインスタンスを取得
             Preferences preferences = SVNPreferences.getInstance();
             String commandPath = preferences.get(SVNPreferences.KEY_ASTAH_HOME, null);
+            String currentDir = new File(".").getAbsoluteFile().getParent();
 
-            String commandExtension = ".sh";
             String os = System.getProperty("os.name");
+
+            // コマンドは相対パスで指定する
+
+            if (os.matches("^Windows.*")) {
+                if (commandPath.equals(currentDir)){
+                    // カレントディレクトリと保存してあるastahインストールディレクトリが同じ場合
+                    commandPath = "." + File.separator;
+                } else {
+                    // カレントディレクトリと保存してあるastahインストールディレクトリが同じ場合
+                    String newCmdPath = new String();
+                    String separator = File.separator;
+                    String[] splitPath = currentDir.split(separator);
+                    int separatorNum = splitPath.length;
+
+                    for (int i = 0; i < separatorNum; i++) {
+                        newCmdPath = newCmdPath + ".."  +File.separator;
+                    }
+
+                    if (commandPath.startsWith(File.separator)){
+                    	commandPath = newCmdPath + commandPath.substring(1);
+                    } else {
+                        commandPath = newCmdPath + commandPath;
+                    }
+                }
+            }
+            String commandExtension = ".sh";
 
             if (os.matches("^Windows.*")) {
                 commandExtension = "w.exe";
@@ -62,7 +88,7 @@ public class SVNDiffTask extends SwingWorker<List<Integer>, Integer> {
                 command = commandPath + File.separator;
             }
             command = command + "astah-command" + commandExtension;
-            String escCom = SVNUtils.escapeSpaceForMac(command);
+//            String escCom = SVNUtils.escapeSpaceForMac(command);
 
             String[] diffCommand = new String[]{command, "-diff", oldFile, newFile};
 
@@ -112,10 +138,10 @@ public class SVNDiffTask extends SwingWorker<List<Integer>, Integer> {
             finishFlg = true;
         } catch(IOException ie) {
             ie.printStackTrace();
-            JOptionPane.showMessageDialog(null, Messages.getMessage("err_message.common_exception_from_commandline_tool") + " IOException");
+            JOptionPane.showMessageDialog(null, Messages.getMessage("err_message.common_exception_from_commandline_tool"));
         } catch(InterruptedException ine) {
             ine.printStackTrace();
-            JOptionPane.showMessageDialog(null, Messages.getMessage("err_message.common_exception_from_commandline_tool") + " InterruptedException");
+            JOptionPane.showMessageDialog(null, Messages.getMessage("err_message.common_exception_from_commandline_tool"));
         }
         return null;
     }
