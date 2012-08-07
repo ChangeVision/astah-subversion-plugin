@@ -81,22 +81,38 @@ public class SVNDiffTask extends SwingWorker<List<Integer>, Integer> {
                 	// "-diff C:\Documents and Settings\kasaba\デスクトップ\sample_checkout2-2\class8.asta C:\Documents and Settings\kasaba\デスクトップ\sample_checkout2-2\latest.class8.asta"
                 	directFlg = true;
                 	diffCommand = new String[]{"java",
-                			                   "-Xms64m -Xmx1024m",
+                			                   "-Xms64m",
+                			                   "-Xmx1024m",
                 			                   "-cp",
-                			                   "\"" + commandPath + "astah professional.app/Contents/Resources/Java/astah-pro.jar\"",
+                			                   commandPath + "astah professional.app/Contents/Resources/Java/astah-pro.jar",
                 			                   "com.change_vision.jude.cmdline.JudeCommandRunner",
                 			                   "-diff",
                 			                   oldFile,
                 			                   newFile};
                 }
             }
-//            System.out.println("java " + 
-//	                           "-Xms64m -Xmx1024m " + 
-//	                           "-cp " + 
-//	                           "\"" + commandPath + "astah professional.app/Contents/Resources/Java/astah-pro.jar\" " + 
-//	                           "com.change_vision.jude.cmdline.JudeCommandRunner " + 
-//	                           "-diff " + 
-//	                           oldFile + " " + 
+//            if (os.matches("^Linux.*")) {
+//                if (!commandPath.endsWith(File.separator)){
+//                    commandPath = commandPath + File.separator;
+//                }
+//            	directFlg = true;
+//            	diffCommand = new String[]{"java",
+//            			                   "-Xms64m",
+//            			                   "-Xmx1024m",
+//            			                   "-cp",
+//            			                   commandPath + "astah-pro.jar",
+//            			                   "com.change_vision.jude.cmdline.JudeCommandRunner",
+//            			                   "-diff",
+//            			                   oldFile,
+//            			                   newFile};
+//            }
+//            System.out.println("java " +
+//	                           "-Xms64m -Xmx1024m " +
+//	                           "-cp " +
+//	                           "\"" + commandPath + "astah-pro.jar\" " +
+//	                           "com.change_vision.jude.cmdline.JudeCommandRunner " +
+//	                           "-diff " +
+//	                           oldFile + " " +
 //	                           newFile);
 
             if (!directFlg){
@@ -159,6 +175,7 @@ public class SVNDiffTask extends SwingWorker<List<Integer>, Integer> {
 
             setProgress(100);
 
+            System.out.println(processResult);
             pis.close();
             pos.close();
             pes.close();
