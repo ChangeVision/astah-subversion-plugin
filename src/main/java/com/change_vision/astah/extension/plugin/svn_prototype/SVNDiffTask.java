@@ -39,6 +39,7 @@ public class SVNDiffTask extends SwingWorker<List<Integer>, Integer> {
     @Override
     protected List<Integer> doInBackground() {
         try {
+            boolean directFlg = false;
             SVNPreferences.getInstace(this.getClass());
             // Preferences のインスタンスを取得
             Preferences preferences = SVNPreferences.getInstance();
@@ -47,50 +48,69 @@ public class SVNDiffTask extends SwingWorker<List<Integer>, Integer> {
 
             String os = System.getProperty("os.name");
 
-            // コマンドは相対パスで指定する
+            String[] diffCommand = null;
 
-            if (os.matches("^Windows.*")) {
+            if (os.matches("^Mac.*")) {
                 if (commandPath.equals(currentDir)){
                     // カレントディレクトリと保存してあるastahインストールディレクトリが同じ場合
                     commandPath = "." + File.separator;
                 } else {
                     // カレントディレクトリと保存してあるastahインストールディレクトリが同じ場合
-                    String newCmdPath = new String();
-                    String separator = File.separator;
-                    String[] splitPath = currentDir.split(separator);
-                    int separatorNum = splitPath.length;
-
-                    for (int i = 0; i < separatorNum; i++) {
-                        newCmdPath = newCmdPath + ".."  +File.separator;
+//                    String newCmdPath = new String();
+//                    String separator = File.separator;
+//                    String[] splitPath = currentDir.split(separator);
+//                    int separatorNum = splitPath.length;
+//
+//                    for (int i = 0; i < separatorNum; i++) {
+//                        newCmdPath = newCmdPath + ".."  +File.separator;
+//                    }
+//
+//                    if (commandPath.startsWith(File.separator)){
+//                        commandPath = newCmdPath + commandPath.substring(1);
+//                    } else {
+//                        commandPath = newCmdPath + commandPath;
+//                    }
+                    if (!commandPath.endsWith(File.separator)){
+                        commandPath = commandPath + File.separator;
                     }
-
-                    if (commandPath.startsWith(File.separator)){
-                    	commandPath = newCmdPath + commandPath.substring(1);
-                    } else {
-                        commandPath = newCmdPath + commandPath;
-                    }
+                    // java
+                	// "-Xms64m -Xmx1024m"
+                	// -cp
+                	// "`dirname astah-command.sh`"/astah professional.app/Contents/Resources/Java"/astah-pro.jar"
+                	// com.change_vision.jude.cmdline.JudeCommandRunner
+                	// "-diff C:\Documents and Settings\kasaba\デスクトップ\sample_checkout2-2\class8.asta C:\Documents and Settings\kasaba\デスクトップ\sample_checkout2-2\latest.class8.asta"
+                	directFlg = true;
+                	diffCommand = new String[]{"java",
+                			                   "\"-Xms64m -Xmx1024m\"",
+                			                   "-cp",
+                			                   "\"`dirname \"" + commandPath + "astah-command.sh\"`\"/astah professional.app/Contents/Resources/Java\"/astah-pro.jar\"",
+                			                   "com.change_vision.jude.cmdline.JudeCommandRunner",
+                			                   "\"-diff " + oldFile + " " + newFile + "\""};
                 }
             }
-            String commandExtension = ".sh";
 
-            if (os.matches("^Windows.*")) {
-                commandExtension = "w.exe";
+            if (!directFlg){
+                String commandExtension = ".sh";
+
+                if (os.matches("^Windows.*")) {
+                    commandExtension = "w.exe";
 //            } else {
 //                commandPath = SVNUtils.escapeSpaceForMac(commandPath);
 //                oldFile     = SVNUtils.escapeSpaceForMac(oldFile);
 //                newFile     = SVNUtils.escapeSpaceForMac(newFile);
-            }
+                }
 
-            String command;
-            if (commandPath.endsWith(File.separator)){
-                command = commandPath;
-            } else {
-                command = commandPath + File.separator;
-            }
-            command = command + "astah-command" + commandExtension;
+                String command;
+                if (commandPath.endsWith(File.separator)){
+                    command = commandPath;
+                } else {
+                    command = commandPath + File.separator;
+                }
+                command = command + "astah-command" + commandExtension;
 //            String escCom = SVNUtils.escapeSpaceForMac(command);
 
-            String[] diffCommand = new String[]{command, "-diff", oldFile, newFile};
+                diffCommand = new String[]{command, "-diff", oldFile, newFile};
+            }
 
             Runtime r = Runtime.getRuntime();
             Process p = r.exec(diffCommand);
