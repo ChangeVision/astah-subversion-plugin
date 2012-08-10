@@ -10,6 +10,7 @@ import java.util.Collections;
 
 import javax.swing.JOptionPane;
 
+import org.tmatesoft.svn.core.SVNDepth;
 import org.tmatesoft.svn.core.SVNDirEntry;
 import org.tmatesoft.svn.core.SVNException;
 import org.tmatesoft.svn.core.SVNProperties;
@@ -28,6 +29,8 @@ import org.tmatesoft.svn.core.io.SVNRepository;
 import org.tmatesoft.svn.core.io.SVNRepositoryFactory;
 import org.tmatesoft.svn.core.io.diff.SVNDeltaGenerator;
 import org.tmatesoft.svn.core.wc.SVNClientManager;
+import org.tmatesoft.svn.core.wc.SVNWCClient;
+import org.tmatesoft.svn.core.wc.SVNWCUtil;
 
 import com.change_vision.astah.extension.plugin.svn_prototype.Messages;
 import com.change_vision.astah.extension.plugin.svn_prototype.dialog.SVNCommitCommentDialog;
@@ -174,33 +177,46 @@ public class CommitAction implements IPluginActionDelegate {
                 editor = null;
             }
 
-            // ----- debug -----
-            // 競合時に発生するファイル名を取得
-            System.out.println("【DEBUG】before update");
             long revision = (utils.repos).getLatestRevision(); 
             File originFile = new File(pjPath + ".r" + revision);
-            // 更新処理実施
-            if (!originFile.exists()) {
-                // 競合なし
-                System.out.println("【DEBUG】no conflict!");
-            } else {
-                System.out.println("【DEBUG】conflict!");
-            }
-            // ----- debug -----
+
+//            // ----- debug -----
+//            // 競合時に発生するファイル名を取得
+//            System.out.println("【DEBUG】before update");
+//            // 更新処理実施
+//            if (!originFile.exists()) {
+//                // 競合なし
+//                System.out.println("【DEBUG】no conflict!");
+//            } else {
+//                System.out.println("【DEBUG】conflict!");
+//            }
+//            // ----- debug -----
 
             // ファイルを更新
             UpdateAction.doUpdate(arg0, utils, pjPath);
 
-            // ----- debug -----
-            System.out.println("【DEBUG】after update");
-            // 更新処理実施
-            if (!originFile.exists()) {
-                // 競合なし
-                System.out.println("【DEBUG】no conflict!");
-            } else {
-                System.out.println("【DEBUG】conflict!");
+//            // ----- debug -----
+//            System.out.println("【DEBUG】after update");
+//            // 更新処理実施
+//            if (!originFile.exists()) {
+//                // 競合なし
+//                System.out.println("【DEBUG】no conflict!");
+//            } else {
+//                System.out.println("【DEBUG】conflict!");
+//            }
+//            // ----- debug -----
+            if (originFile.exists()) {
+                // 競合した場合
+                SVNClientManager scm;
+                if (SVNUtils.chkNullString(utils.password)){
+                    scm = SVNClientManager.newInstance(SVNWCUtil.createDefaultOptions(true), utils.getAuthManager());
+                } else {
+                    scm = SVNClientManager.newInstance(SVNWCUtil.createDefaultOptions(true), utils.user, utils.password);
+                }
+                // 競合解消のため、「元に戻す」処理を実行
+                SVNWCClient wcClient = scm.getWCClient();
+                wcClient.doRevert(new File[]{new File(pjPath)}, SVNDepth.INFINITY, null);
             }
-            // ----- debug -----
 
             JOptionPane.showMessageDialog(null, Messages.getMessage("info_message.commit_complete"));
         } catch (SVNException se){
