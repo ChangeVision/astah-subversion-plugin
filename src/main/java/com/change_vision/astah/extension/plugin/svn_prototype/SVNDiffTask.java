@@ -138,6 +138,11 @@ public class SVNDiffTask extends SwingWorker<List<Integer>, Integer> {
                 diffCommand = new String[]{command, "-diff", oldFile, newFile};
             }
 
+//            System.out.println("---------- Command ----------");
+//            for (int i = 0; i < diffCommand.length; i++) {
+//                System.out.println(i + ":" + diffCommand[i]);
+//            }
+//            System.out.println("---------- Command ----------");
             Runtime r = Runtime.getRuntime();
             Process p = r.exec(diffCommand);
 
@@ -175,7 +180,7 @@ public class SVNDiffTask extends SwingWorker<List<Integer>, Integer> {
 
             setProgress(100);
 
-            System.out.println(processResult);
+//            System.out.println(processResult);
             pis.close();
             pos.close();
             pes.close();
@@ -184,10 +189,10 @@ public class SVNDiffTask extends SwingWorker<List<Integer>, Integer> {
             r.gc();
             finishFlg = true;
         } catch(IOException ie) {
-            ie.printStackTrace();
+//            ie.printStackTrace();
             JOptionPane.showMessageDialog(null, Messages.getMessage("err_message.common_exception_from_commandline_tool"));
         } catch(InterruptedException ine) {
-            ine.printStackTrace();
+//            ine.printStackTrace();
             JOptionPane.showMessageDialog(null, Messages.getMessage("err_message.common_exception_from_commandline_tool"));
         }
         return null;

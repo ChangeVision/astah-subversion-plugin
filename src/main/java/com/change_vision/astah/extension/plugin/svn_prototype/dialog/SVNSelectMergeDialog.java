@@ -26,6 +26,8 @@ public class SVNSelectMergeDialog extends KeyDialog {
     public static final int GET_LATEST_PROJECT = 4;  // 編集中の内容を破棄し、最新版のプロジェクトを取得
     public static final int GET_LATEST_REVISION = 5; // 編集中の内容をそのままにし、リビジョンだけ最新にする
 
+    private boolean selectFlg = false;
+
     JRadioButton radio1;
     JRadioButton radio2;
     JRadioButton radio3;
@@ -122,9 +124,11 @@ public class SVNSelectMergeDialog extends KeyDialog {
                     preferences.flush();
                     // ウィンドウを閉じる処理
                     dispose();
+                    selectFlg = true;
                     return;
                 } catch (BackingStoreException bse) {
-                    bse.getCause().printStackTrace();
+//                    bse.getCause().printStackTrace();
+                    JOptionPane.showMessageDialog(null, Messages.getMessage("err_message.config_fails_to_save"));
                 }
             }
         });
@@ -148,7 +152,8 @@ public class SVNSelectMergeDialog extends KeyDialog {
                     dispose();
                     return;
                 } catch (BackingStoreException bse) {
-                    bse.getCause().printStackTrace();
+//                    bse.getCause().printStackTrace();
+                    JOptionPane.showMessageDialog(null, Messages.getMessage("err_message.config_fails_to_save"));
                 }
             }
         });
@@ -163,4 +168,7 @@ public class SVNSelectMergeDialog extends KeyDialog {
         }
     }
 
+    public boolean getSelectFlg(){
+        return selectFlg;
+    }
 }

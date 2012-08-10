@@ -173,8 +173,34 @@ public class CommitAction implements IPluginActionDelegate {
                 editor.closeEdit();
                 editor = null;
             }
+
+            // ----- debug -----
+            // 競合時に発生するファイル名を取得
+            System.out.println("【DEBUG】before update");
+            long revision = (utils.repos).getLatestRevision(); 
+            File originFile = new File(pjPath + ".r" + revision);
+            // 更新処理実施
+            if (!originFile.exists()) {
+                // 競合なし
+                System.out.println("【DEBUG】no conflict!");
+            } else {
+                System.out.println("【DEBUG】conflict!");
+            }
+            // ----- debug -----
+
             // ファイルを更新
             UpdateAction.doUpdate(arg0, utils, pjPath);
+
+            // ----- debug -----
+            System.out.println("【DEBUG】after update");
+            // 更新処理実施
+            if (!originFile.exists()) {
+                // 競合なし
+                System.out.println("【DEBUG】no conflict!");
+            } else {
+                System.out.println("【DEBUG】conflict!");
+            }
+            // ----- debug -----
 
             JOptionPane.showMessageDialog(null, Messages.getMessage("info_message.commit_complete"));
         } catch (SVNException se){

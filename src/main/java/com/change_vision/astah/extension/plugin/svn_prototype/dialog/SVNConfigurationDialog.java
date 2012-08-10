@@ -334,11 +334,13 @@ public class SVNConfigurationDialog extends KeyDialog {
                     }
                     return;
                 } catch (BackingStoreException bse) {
-                    bse.getCause().printStackTrace();
+//                    bse.getCause().printStackTrace();
+                    JOptionPane.showMessageDialog(null, Messages.getMessage("err_message.config_fails_to_save"));
                 } catch (UnsupportedEncodingException uee) {
-                    uee.printStackTrace();
+//                    uee.printStackTrace();
+                    JOptionPane.showMessageDialog(null, Messages.getMessage("err_message.config_fails_password_encryption"));
                 } catch (SVNException se) {
-                    se.printStackTrace();
+//                    se.printStackTrace();
                     if (!SVNUtils.chkLoginError(se)){
                         // それ以外のSVN関連エラー
                         JOptionPane.showMessageDialog(null, Messages.getMessage("err_message.common_svn_error"));
@@ -682,7 +684,7 @@ public class SVNConfigurationDialog extends KeyDialog {
             String pjPath = projectAccessor.getProjectPath();
 
             if (!SVNUtils.chkNotSaveProject(pjPath)) {
-                try {
+//                try {
 //                    SVNStatus status = SVNClientManager.newInstance().getStatusClient().doStatus(new File(pjPath), false);
 //                    if (status != null) {
 //                        url = status.getURL();
@@ -704,10 +706,10 @@ public class SVNConfigurationDialog extends KeyDialog {
                     if (!SVNUtils.chkNullString(fileURL)) {
                         property = fileURL;
                     }
-                } catch (SVNException se) {
-                    se.printStackTrace();
-                    throw se;
-                }
+//                } catch (SVNException se) {
+//                    se.printStackTrace();
+//                    throw se;
+//                }
             } else {
                 errFlg = true;
                 property = null;

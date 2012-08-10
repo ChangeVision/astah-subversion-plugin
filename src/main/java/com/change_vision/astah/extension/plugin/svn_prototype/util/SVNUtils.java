@@ -273,7 +273,7 @@ public class SVNUtils {
         try {
             bytes = createCipher(Cipher.ENCRYPT_MODE).doFinal(encriptString.getBytes());
         } catch (Exception e) {
-            e.printStackTrace();
+//            e.printStackTrace();
             JOptionPane.showMessageDialog(null, e.getLocalizedMessage());
             return null;
         }
@@ -286,7 +286,7 @@ public class SVNUtils {
             byte[] bytes = createCipher(Cipher.DECRYPT_MODE).doFinal(decript);
             str = new String(bytes);
         } catch (Exception e) {
-            e.printStackTrace();
+//            e.printStackTrace();
             JOptionPane.showMessageDialog(null, e.getLocalizedMessage());
             return null;
         }
@@ -300,13 +300,13 @@ public class SVNUtils {
             cipher = Cipher.getInstance(CIPHER_TYPE);
             cipher.init(cipherMode, key);
         } catch (InvalidKeyException e) {
-            e.printStackTrace();
+//            e.printStackTrace();
             JOptionPane.showMessageDialog(null, e.getMessage());
         } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
+//            e.printStackTrace();
             JOptionPane.showMessageDialog(null, e.getMessage());
         } catch (NoSuchPaddingException e) {
-            e.printStackTrace();
+//            e.printStackTrace();
             JOptionPane.showMessageDialog(null, e.getMessage());
         }
         return cipher;

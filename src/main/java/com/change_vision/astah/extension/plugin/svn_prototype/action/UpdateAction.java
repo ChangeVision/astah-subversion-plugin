@@ -124,6 +124,11 @@ public class UpdateAction implements IPluginActionDelegate {
             client.doUpdate(new File(path), SVNRevision.create(revision), SVNDepth.INFINITY, true, true);
             return true;
         } catch (SVNException e) {
+        	// ----- debug -----
+        	System.out.println("【DEBUG】UpdateAction.doUpdate() SVNException Stack Trace! ----------");
+        	e.printStackTrace();
+        	System.out.println("【DEBUG】UpdateAction.doUpdate() SVNException Stack Trace! ----------");
+        	// ----- debug -----
             if (handler.getMergeFlg()) {
                 throw e;
             }
@@ -225,10 +230,14 @@ public class UpdateAction implements IPluginActionDelegate {
             int selected = 0;
             String strMergeKind = ""; 
 
-            // 取得するまでループで待機
             strMergeKind = preferences.get(SVNPreferences.KEY_MERGE_KIND, null);
             if (strMergeKind != null) {
-                selected = Integer.valueOf(strMergeKind);
+                if (dialog.getSelectFlg()) {
+                    selected = Integer.valueOf(strMergeKind);
+                } else {
+                    selected = SVNSelectMergeDialog.NO_MERGE;
+                }
+
                 mergeTask.setSelected(selected);
             }
 
