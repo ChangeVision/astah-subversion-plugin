@@ -111,7 +111,7 @@ public class SVNConfigurationDialog extends KeyDialog {
             setTitle(Messages.getMessage("svn_setting_list_dialog.title"));
 
             // ダイアログの大きさを設定
-            setSize(new Dimension(600, 400));
+//            setSize(new Dimension(600, 400));
             setLocationRelativeTo(frame);
             setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 
@@ -136,7 +136,7 @@ public class SVNConfigurationDialog extends KeyDialog {
             }
 
             JLabel lblRepository = new JLabel(" " + Messages.getMessage("login_dialog.repository_label") + " ");
-            lblRepository.setSize(new Dimension(LABEL_WIDTH, LABEL_HEIGHT));
+//            lblRepository.setSize(new Dimension(LABEL_WIDTH, LABEL_HEIGHT));
             if (SVNUtils.chkNullString(url)) {
                 JOptionPane.showMessageDialog(null, Messages.getMessage("err_message.config_not_entered_repository"));
                 repository = new JTextField(50);
@@ -188,7 +188,7 @@ public class SVNConfigurationDialog extends KeyDialog {
     private JPanel getHeaderPanel(String homePath){
         JPanel headerPanel = new JPanel();
         JLabel lblastah = new JLabel(Messages.getMessage("login_dialog.astah_home_label"));
-        lblastah.setPreferredSize(new Dimension((int)(Math.round(LABEL_WIDTH * 2.0)), LABEL_HEIGHT));
+//        lblastah.setPreferredSize(new Dimension((int)(Math.round(LABEL_WIDTH * 2.0)), LABEL_HEIGHT));
         if (SVNUtils.chkNullString(homePath)) {
             astah_home = new JTextField(34);
         } else {
@@ -349,7 +349,7 @@ public class SVNConfigurationDialog extends KeyDialog {
                 }
             }
         });
-        saveButton.setPreferredSize(new Dimension(80, 25));
+//        saveButton.setPreferredSize(new Dimension(80, 25));
         footerPanel.add(saveButton);
 
         // キャンセルボタン追加
@@ -363,16 +363,17 @@ public class SVNConfigurationDialog extends KeyDialog {
                 return;
             }
         });
-        cancelButton.setPreferredSize(new Dimension(80, 25));
+//        cancelButton.setPreferredSize(new Dimension(80, 25));
         footerPanel.add(cancelButton);
 
         return footerPanel;
     }
 
     private JPanel getBasicAuthPanel(Preferences preferences, BevelBorder border, int selected) throws SVNException, ProjectNotFoundException, ClassNotFoundException, UnsupportedEncodingException {
-        JPanel basicAuthPanel = new JPanel();
-        JPanel userPanel       = new JPanel();
-        JPanel passwordPanel   = new JPanel();
+        JPanel basicAuthPanel = new JPanel(new BorderLayout());
+        JPanel inputPanel     = new JPanel(new BorderLayout());
+        JPanel userPanel      = new JPanel(new BorderLayout());
+        JPanel passwordPanel  = new JPanel(new BorderLayout());
 
         basicAuthPanel.setLayout(new BorderLayout());
         basicAuthPanel.setBorder(border);
@@ -392,19 +393,19 @@ public class SVNConfigurationDialog extends KeyDialog {
         // SVNユーザー
         String userName = getDefaultString(SVNPreferences.KEY_USER_NAME, preferences);
         JLabel lblUser = new JLabel(Messages.getMessage("login_dialog.user_label"));
-        lblUser.setPreferredSize(new Dimension(LABEL_WIDTH, LABEL_HEIGHT));
+//        lblUser.setPreferredSize(new Dimension(LABEL_WIDTH, LABEL_HEIGHT));
         if (SVNUtils.chkNullString(userName) || selected != SVNUtils.LOGIN_KIND_BASIC) {
             basicUser = new JTextField(50);
         } else {
         	basicUser = new JTextField(userName, 50);
         }
-        userPanel.add(lblUser);
-        userPanel.add(basicUser);
+        userPanel.add(lblUser, BorderLayout.WEST);
+        userPanel.add(basicUser, BorderLayout.CENTER);
 
         // SVNパスワード
         String pw = getDefaultString(SVNPreferences.KEY_PASSWORD, preferences);
         JLabel lblPassword = new JLabel(Messages.getMessage("login_dialog.password_label"));
-        lblPassword.setPreferredSize(new Dimension(LABEL_WIDTH, LABEL_HEIGHT));
+//        lblPassword.setPreferredSize(new Dimension(LABEL_WIDTH, LABEL_HEIGHT));
         if (SVNUtils.chkNullString(pw) || selected != SVNUtils.LOGIN_KIND_BASIC) {
             basicPassword = new JPasswordField(36);
             // チェックボックスをoffに設定
@@ -419,8 +420,8 @@ public class SVNConfigurationDialog extends KeyDialog {
             // パスワード入力欄を編集可に設定
             basicPassword.setEnabled(true);
         }
-        passwordPanel.add(lblPassword);
-        passwordPanel.add(basicPassword);
+        passwordPanel.add(lblPassword, BorderLayout.WEST);
+        passwordPanel.add(basicPassword, BorderLayout.CENTER);
 
         // SVNパスワードを保存する/しない を選択するチェックボックス
         basicSavePw.addActionListener(new ActionListener() {
@@ -436,10 +437,14 @@ public class SVNConfigurationDialog extends KeyDialog {
 
             }
         });
-        passwordPanel.add(basicSavePw);
+        passwordPanel.add(basicSavePw, BorderLayout.NORTH);
+        inputPanel.add(userPanel, BorderLayout.NORTH);
+        inputPanel.add(passwordPanel, BorderLayout.SOUTH);
 
-        basicAuthPanel.add(userPanel, BorderLayout.CENTER);
-        basicAuthPanel.add(passwordPanel, BorderLayout.SOUTH);
+        basicAuthPanel.add(new JLabel("      "), BorderLayout.EAST);
+        basicAuthPanel.add(inputPanel, BorderLayout.CENTER);
+        basicAuthPanel.add(new JLabel("      "), BorderLayout.WEST);
+//        basicAuthPanel.add(passwordPanel, BorderLayout.SOUTH);
 
         return basicAuthPanel;
     }
@@ -520,14 +525,15 @@ public class SVNConfigurationDialog extends KeyDialog {
 //    }
 
     private JPanel getSSHAuthPanel(Preferences preferences, BevelBorder border, int selected) throws SVNException, ProjectNotFoundException, ClassNotFoundException, UnsupportedEncodingException {
-        JPanel sshAuthPanel  = new JPanel();
-        JPanel userPanel     = new JPanel();
-        JPanel passPanel     = new JPanel();
-        JPanel passwordPanel = new JPanel();
+        JPanel sshAuthPanel  = new JPanel(new BorderLayout());
+        JPanel inputPanel    = new JPanel(new BorderLayout());
+        JPanel userPanel     = new JPanel(new BorderLayout());
+        JPanel pathPanel     = new JPanel(new BorderLayout());
+        JPanel passwordPanel = new JPanel(new BorderLayout());
         JPanel filePanel     = new JPanel();
 
-        passPanel.setLayout(new BorderLayout());
-        sshAuthPanel.setLayout(new BorderLayout());
+//        pathPanel.setLayout(new BorderLayout());
+//        sshAuthPanel.setLayout(new BorderLayout());
         sshAuthPanel.setBorder(border);
 
         sshRadio = new JRadioButton(Messages.getMessage("login_dialog.ssh_auth_label"), false);
@@ -545,19 +551,20 @@ public class SVNConfigurationDialog extends KeyDialog {
         // SVNユーザー
         String userName = getDefaultString(SVNPreferences.KEY_USER_NAME, preferences);
         JLabel lblUser = new JLabel(Messages.getMessage("login_dialog.user_label"));
-        lblUser.setPreferredSize(new Dimension(LABEL_WIDTH, LABEL_HEIGHT));
+//        lblUser.setPreferredSize(new Dimension(LABEL_WIDTH, LABEL_HEIGHT));
         if (SVNUtils.chkNullString(userName) || selected != SVNUtils.LOGIN_KIND_SSH) {
             sshUser = new JTextField(50);
         } else {
         	sshUser = new JTextField(userName, 50);
         }
-        userPanel.add(lblUser);
-        userPanel.add(sshUser);
+        userPanel.add(lblUser, BorderLayout.WEST);
+        userPanel.add(sshUser, BorderLayout.CENTER);
+        inputPanel.add(userPanel, BorderLayout.NORTH);
 
         // SVNパスワード
         String pw = getDefaultString(SVNPreferences.KEY_PASSWORD, preferences);
         JLabel lblPassword = new JLabel(Messages.getMessage("login_dialog.password_label"));
-        lblPassword.setPreferredSize(new Dimension(LABEL_WIDTH, LABEL_HEIGHT));
+//        lblPassword.setPreferredSize(new Dimension(LABEL_WIDTH, LABEL_HEIGHT));
         if (SVNUtils.chkNullString(pw) || selected != SVNUtils.LOGIN_KIND_SSH) {
             sshPassword = new JPasswordField(36);
             // チェックボックスをoffに設定
@@ -572,8 +579,8 @@ public class SVNConfigurationDialog extends KeyDialog {
             // パスワード入力欄を編集可に設定
             sshPassword.setEnabled(true);
         }
-        passwordPanel.add(lblPassword);
-        passwordPanel.add(sshPassword);
+        passwordPanel.add(lblPassword, BorderLayout.WEST);
+        passwordPanel.add(sshPassword, BorderLayout.CENTER);
 
         // SVNパスワードを保存する/しない を選択するチェックボックス
         sshSavePw.addActionListener(new ActionListener() {
@@ -589,13 +596,14 @@ public class SVNConfigurationDialog extends KeyDialog {
 
             }
         });
-        passwordPanel.add(sshSavePw);
+        passwordPanel.add(sshSavePw, BorderLayout.NORTH);
+        inputPanel.add(passwordPanel, BorderLayout.SOUTH);
 
         // SSHキーファイル
         String  key = getDefaultString(SVNPreferences.KEY_KEYFILE_PATH, preferences);
         keyFileButton = new JButton(Messages.getMessage("file"));
         JLabel  lblSsh = new JLabel(Messages.getMessage("login_dialog.keyfile_path_label"));
-        lblSsh.setPreferredSize(new Dimension(LABEL_WIDTH, LABEL_HEIGHT));
+//        lblSsh.setPreferredSize(new Dimension(LABEL_WIDTH, LABEL_HEIGHT));
         if (SVNUtils.chkNullString(key) || selected != SVNUtils.LOGIN_KIND_SSH) {
             key_file_path = new JTextField(44);
             // キーファイル設定ボタンを無効に設定
@@ -627,11 +635,15 @@ public class SVNConfigurationDialog extends KeyDialog {
         filePanel.add(lblSsh);
         filePanel.add(key_file_path);
         filePanel.add(keyFileButton);
-        passPanel.add(passwordPanel, BorderLayout.CENTER);
-        passPanel.add(filePanel, BorderLayout.SOUTH);
+//        pathPanel.add(passwordPanel, BorderLayout.CENTER);
+//        pathPanel.add(filePanel, BorderLayout.SOUTH);
 
-        sshAuthPanel.add(userPanel, BorderLayout.CENTER);
-        sshAuthPanel.add(passPanel, BorderLayout.SOUTH);
+//        sshAuthPanel.add(userPanel, BorderLayout.CENTER);
+//        sshAuthPanel.add(pathPanel, BorderLayout.SOUTH);
+        sshAuthPanel.add(new JLabel("      "), BorderLayout.EAST);
+        sshAuthPanel.add(inputPanel, BorderLayout.CENTER);
+        sshAuthPanel.add(new JLabel("      "), BorderLayout.WEST);
+        sshAuthPanel.add(filePanel, BorderLayout.SOUTH);
 
         return sshAuthPanel;
     }
@@ -658,7 +670,7 @@ public class SVNConfigurationDialog extends KeyDialog {
         // SVNユーザー
         String userName = getDefaultString(SVNPreferences.KEY_USER_NAME, preferences);
         JLabel lblUser = new JLabel(Messages.getMessage("login_dialog.user_label"));
-        lblUser.setPreferredSize(new Dimension(LABEL_WIDTH, LABEL_HEIGHT));
+//        lblUser.setPreferredSize(new Dimension(LABEL_WIDTH, LABEL_HEIGHT));
         if (SVNUtils.chkNullString(userName) || selected != SVNUtils.LOGIN_KIND_NOAUTH) {
             noAuthUser = new JTextField(50);
         } else {

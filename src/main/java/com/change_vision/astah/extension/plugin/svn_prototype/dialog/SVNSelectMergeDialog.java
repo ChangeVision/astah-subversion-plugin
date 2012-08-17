@@ -73,13 +73,13 @@ public class SVNSelectMergeDialog extends KeyDialog {
 
         ButtonGroup bGroup = new ButtonGroup();
         radio1 = new JRadioButton(Messages.getMessage("merge_dialog.merge_current_label"), currentFlg);
-        radio1.setPreferredSize(new Dimension(305, 20));
+//        radio1.setPreferredSize(new Dimension(305, 20));
         radio2 = new JRadioButton(Messages.getMessage("merge_dialog.merge_repository_label"), repositoryFlg);
-        radio2.setPreferredSize(new Dimension(305, 20));
+//        radio2.setPreferredSize(new Dimension(305, 20));
         radio3 = new JRadioButton(Messages.getMessage("merge_dialog.get_new_project"), latestProjectFlg);
-        radio3.setPreferredSize(new Dimension(305, 20));
+//        radio3.setPreferredSize(new Dimension(305, 20));
         radio4 = new JRadioButton(Messages.getMessage("merge_dialog.update_revision"), latestRevisionFlg);
-        radio4.setPreferredSize(new Dimension(305, 20));
+//        radio4.setPreferredSize(new Dimension(305, 20));
 
         // パネルにラジオボタンを追加
         contentPanel1.add(radio1, BorderLayout.NORTH);
@@ -117,7 +117,7 @@ public class SVNSelectMergeDialog extends KeyDialog {
                     } else if (radio4.isSelected()){
                         Selected = GET_LATEST_REVISION;
                     } else {
-                        JOptionPane.showMessageDialog(null, "どれか選択してください。");
+                        JOptionPane.showMessageDialog(null, Messages.getMessage("err_message.merge_no_choice"));
                         return;
                     }
                     preferences.put(SVNPreferences.KEY_MERGE_KIND, String.valueOf(Selected));
