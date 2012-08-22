@@ -1,15 +1,15 @@
 Subversion 簡易操作プラグイン
 ===============================
 
-Version
+**バージョン**
 ----------------
-1.0.0
+1.1.0
 
-Available for
+**利用可能Astah***
 ----------------
 Astah Professional 6.5 or later
 
-Description
+**概要**
 ----------------
 本プラグインはastah*上から以下のSubuversionの操作を行うプラグインです。  
 1. 更新  
@@ -23,21 +23,20 @@ Description
 
 
 
-How to install
+**インストール方法**
 ----------------
 1. Astahのインストールフォルダの下のpluginsフォルダに本プラグインのjarファイルを置きます。
 2. Astahを起動します。
 3. メニューバーの「ツール」の一番下に「簡易SVN操作」と表示されていることを確認します。
 
-Example of use
+**使用例**
 ----------------
 1. 任意のディレクトリにリポジトリからチェックアウトします。![Alt text](./readme_images/checkout.png "checkout window")
 2. Astahを起動し、図を作成、保存します。
 3. 設定画面を開き、Subversionの設定を行います。![Alt text](./readme_images/config2.png "config window")
 4. リポジトリへのコミットを行います。![Alt text](./readme_images/commit_comment.png "commit comment window")
 
-
-License
+**ライセンス**
 ---------------
 Copyright 2012 Change Vision, Inc.
 
