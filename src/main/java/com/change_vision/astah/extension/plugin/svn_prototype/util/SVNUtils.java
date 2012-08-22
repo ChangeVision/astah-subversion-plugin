@@ -73,7 +73,6 @@ public class SVNUtils {
             Preferences preferences = SVNPreferences.getInstace(SVNConfigurationDialog.class);
 
             loginKind   = Integer.parseInt(preferences.get(SVNPreferences.KEY_LOGIN_KIND, null));
-//            repository  = preferences.get(SVNPreferences.KEY_REPOSITORY_URL, null);
             repository  = getDefaultRepositoryURL();
             user        = preferences.get(SVNPreferences.KEY_USER_NAME, null);
             password    = preferences.get(SVNPreferences.KEY_PASSWORD, null);
@@ -273,7 +272,6 @@ public class SVNUtils {
         try {
             bytes = createCipher(Cipher.ENCRYPT_MODE).doFinal(encriptString.getBytes());
         } catch (Exception e) {
-//            e.printStackTrace();
             JOptionPane.showMessageDialog(null, e.getLocalizedMessage());
             return null;
         }
@@ -286,7 +284,6 @@ public class SVNUtils {
             byte[] bytes = createCipher(Cipher.DECRYPT_MODE).doFinal(decript);
             str = new String(bytes);
         } catch (Exception e) {
-//            e.printStackTrace();
             JOptionPane.showMessageDialog(null, e.getLocalizedMessage());
             return null;
         }
@@ -300,13 +297,10 @@ public class SVNUtils {
             cipher = Cipher.getInstance(CIPHER_TYPE);
             cipher.init(cipherMode, key);
         } catch (InvalidKeyException e) {
-//            e.printStackTrace();
             JOptionPane.showMessageDialog(null, e.getMessage());
         } catch (NoSuchAlgorithmException e) {
-//            e.printStackTrace();
             JOptionPane.showMessageDialog(null, e.getMessage());
         } catch (NoSuchPaddingException e) {
-//            e.printStackTrace();
             JOptionPane.showMessageDialog(null, e.getMessage());
         }
         return cipher;

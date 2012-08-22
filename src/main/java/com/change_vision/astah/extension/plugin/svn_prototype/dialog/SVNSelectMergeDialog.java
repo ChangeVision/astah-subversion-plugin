@@ -1,7 +1,6 @@
 package com.change_vision.astah.extension.plugin.svn_prototype.dialog;
 
 import java.awt.BorderLayout;
-import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.prefs.BackingStoreException;
@@ -73,13 +72,9 @@ public class SVNSelectMergeDialog extends KeyDialog {
 
         ButtonGroup bGroup = new ButtonGroup();
         radio1 = new JRadioButton(Messages.getMessage("merge_dialog.merge_current_label"), currentFlg);
-//        radio1.setPreferredSize(new Dimension(305, 20));
         radio2 = new JRadioButton(Messages.getMessage("merge_dialog.merge_repository_label"), repositoryFlg);
-//        radio2.setPreferredSize(new Dimension(305, 20));
         radio3 = new JRadioButton(Messages.getMessage("merge_dialog.get_new_project"), latestProjectFlg);
-//        radio3.setPreferredSize(new Dimension(305, 20));
         radio4 = new JRadioButton(Messages.getMessage("merge_dialog.update_revision"), latestRevisionFlg);
-//        radio4.setPreferredSize(new Dimension(305, 20));
 
         // パネルにラジオボタンを追加
         contentPanel1.add(radio1, BorderLayout.NORTH);
@@ -127,7 +122,6 @@ public class SVNSelectMergeDialog extends KeyDialog {
                     selectFlg = true;
                     return;
                 } catch (BackingStoreException bse) {
-//                    bse.getCause().printStackTrace();
                     JOptionPane.showMessageDialog(null, Messages.getMessage("err_message.config_fails_to_save"));
                 }
             }
@@ -152,7 +146,6 @@ public class SVNSelectMergeDialog extends KeyDialog {
                     dispose();
                     return;
                 } catch (BackingStoreException bse) {
-//                    bse.getCause().printStackTrace();
                     JOptionPane.showMessageDialog(null, Messages.getMessage("err_message.config_fails_to_save"));
                 }
             }

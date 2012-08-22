@@ -124,11 +124,6 @@ public class UpdateAction implements IPluginActionDelegate {
             client.doUpdate(new File(path), SVNRevision.create(revision), SVNDepth.INFINITY, true, true);
             return true;
         } catch (SVNException e) {
-//        	// ----- debug -----
-//        	System.out.println("【DEBUG】UpdateAction.doUpdate() SVNException Stack Trace! ----------");
-//        	e.printStackTrace();
-//        	System.out.println("【DEBUG】UpdateAction.doUpdate() SVNException Stack Trace! ----------");
-//        	// ----- debug -----
             if (handler.getMergeFlg()) {
                 throw e;
             }

@@ -180,31 +180,9 @@ public class CommitAction implements IPluginActionDelegate {
             long revision = (utils.repos).getLatestRevision(); 
             File originFile = new File(pjPath + ".r" + revision);
 
-//            // ----- debug -----
-//            // 競合時に発生するファイル名を取得
-//            System.out.println("【DEBUG】before update");
-//            // 更新処理実施
-//            if (!originFile.exists()) {
-//                // 競合なし
-//                System.out.println("【DEBUG】no conflict!");
-//            } else {
-//                System.out.println("【DEBUG】conflict!");
-//            }
-//            // ----- debug -----
-
             // ファイルを更新
             UpdateAction.doUpdate(arg0, utils, pjPath);
 
-//            // ----- debug -----
-//            System.out.println("【DEBUG】after update");
-//            // 更新処理実施
-//            if (!originFile.exists()) {
-//                // 競合なし
-//                System.out.println("【DEBUG】no conflict!");
-//            } else {
-//                System.out.println("【DEBUG】conflict!");
-//            }
-//            // ----- debug -----
             if (originFile.exists()) {
                 // 競合した場合
                 SVNClientManager scm;

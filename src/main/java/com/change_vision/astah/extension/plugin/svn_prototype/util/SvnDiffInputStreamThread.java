@@ -54,6 +54,4 @@ public class SvnDiffInputStreamThread extends Thread {
     public List<String> getStringList() {
         return list;
     }
-
-
 }

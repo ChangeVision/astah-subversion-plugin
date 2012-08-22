@@ -2,7 +2,6 @@ package com.change_vision.astah.extension.plugin.svn_prototype.dialog;
 
 import java.awt.BorderLayout;
 import java.awt.Container;
-import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -25,9 +24,6 @@ import javax.swing.JTextField;
 import javax.swing.border.BevelBorder;
 
 import org.tmatesoft.svn.core.SVNException;
-//import org.tmatesoft.svn.core.SVNURL;
-//import org.tmatesoft.svn.core.wc.SVNClientManager;
-//import org.tmatesoft.svn.core.wc.SVNStatus;
 
 import com.change_vision.astah.extension.plugin.svn_prototype.Messages;
 import com.change_vision.astah.extension.plugin.svn_prototype.dialog.KeyDialog;
@@ -40,29 +36,23 @@ import com.change_vision.jude.api.inf.project.ProjectAccessorFactory;
 public class SVNConfigurationDialog extends KeyDialog {
 
     private static final long serialVersionUID = 1L;
-    private static final int  LABEL_WIDTH      = 80;
-    private static final int  LABEL_HEIGHT     = 20;
 
     private JTextField astah_home;
     private JTextField repository;
     private JTextField basicUser;
-//    private JTextField sslUser;
     private JTextField sshUser;
     private JTextField noAuthUser;
     private JTextField key_file_path;
 
     private JPasswordField basicPassword;
-//    private JPasswordField sslPassword;
     private JPasswordField sshPassword;
 
     private JCheckBox basicSavePw;
-//    private JCheckBox sslSavePw;
     private JCheckBox sshSavePw;
 
     private JButton keyFileButton;
 
     private JRadioButton basicRadio;
-//    private JRadioButton sslRadio;
     private JRadioButton sshRadio;
     private JRadioButton noAuthRadio;
 
@@ -111,7 +101,6 @@ public class SVNConfigurationDialog extends KeyDialog {
             setTitle(Messages.getMessage("svn_setting_list_dialog.title"));
 
             // ダイアログの大きさを設定
-//            setSize(new Dimension(600, 400));
             setLocationRelativeTo(frame);
             setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 
@@ -136,7 +125,6 @@ public class SVNConfigurationDialog extends KeyDialog {
             }
 
             JLabel lblRepository = new JLabel(" " + Messages.getMessage("login_dialog.repository_label") + " ");
-//            lblRepository.setSize(new Dimension(LABEL_WIDTH, LABEL_HEIGHT));
             if (SVNUtils.chkNullString(url)) {
                 JOptionPane.showMessageDialog(null, Messages.getMessage("err_message.config_not_entered_repository"));
                 repository = new JTextField(50);
@@ -153,7 +141,6 @@ public class SVNConfigurationDialog extends KeyDialog {
             // 画面に配置
             contentPanel.add(headerPanel, BorderLayout.NORTH);
             contentPanel1.add(getBasicAuthPanel(preferences, border, selected), BorderLayout.NORTH);
-//            contentPanel1.add(getSSLAuthPanel(preferences, border, selected), BorderLayout.CENTER);
             contentPanel1.add(getSSHAuthPanel(preferences, border, selected), BorderLayout.SOUTH);
             contentPanel2.add(getNoAuthPanel(preferences, border, selected), BorderLayout.NORTH);
             contentPanel.add(contentPanel1, BorderLayout.CENTER);
@@ -188,13 +175,11 @@ public class SVNConfigurationDialog extends KeyDialog {
     private JPanel getHeaderPanel(String homePath){
         JPanel headerPanel = new JPanel();
         JLabel lblastah = new JLabel(Messages.getMessage("login_dialog.astah_home_label"));
-//        lblastah.setPreferredSize(new Dimension((int)(Math.round(LABEL_WIDTH * 2.0)), LABEL_HEIGHT));
         if (SVNUtils.chkNullString(homePath)) {
             astah_home = new JTextField(34);
         } else {
             astah_home = new JTextField(homePath, 34);
         }
-//        astah_home.setEditable(false);
 
         // 参照ボタンの設定
         JButton fileButton = new JButton(Messages.getMessage("dir"));
@@ -335,13 +320,10 @@ public class SVNConfigurationDialog extends KeyDialog {
                     }
                     return;
                 } catch (BackingStoreException bse) {
-//                    bse.getCause().printStackTrace();
                     JOptionPane.showMessageDialog(null, Messages.getMessage("err_message.config_fails_to_save"));
                 } catch (UnsupportedEncodingException uee) {
-//                    uee.printStackTrace();
                     JOptionPane.showMessageDialog(null, Messages.getMessage("err_message.config_fails_password_encryption"));
                 } catch (SVNException se) {
-//                    se.printStackTrace();
                     if (!SVNUtils.chkLoginError(se)){
                         // それ以外のSVN関連エラー
                         JOptionPane.showMessageDialog(null, Messages.getMessage("err_message.common_svn_error"));
@@ -350,7 +332,6 @@ public class SVNConfigurationDialog extends KeyDialog {
                 }
             }
         });
-//        saveButton.setPreferredSize(new Dimension(80, 25));
         footerPanel.add(saveButton);
 
         // キャンセルボタン追加
@@ -364,7 +345,6 @@ public class SVNConfigurationDialog extends KeyDialog {
                 return;
             }
         });
-//        cancelButton.setPreferredSize(new Dimension(80, 25));
         footerPanel.add(cancelButton);
 
         return footerPanel;
@@ -394,7 +374,6 @@ public class SVNConfigurationDialog extends KeyDialog {
         // SVNユーザー
         String userName = getDefaultString(SVNPreferences.KEY_USER_NAME, preferences);
         JLabel lblUser = new JLabel(Messages.getMessage("login_dialog.user_label"));
-//        lblUser.setPreferredSize(new Dimension(LABEL_WIDTH, LABEL_HEIGHT));
         if (SVNUtils.chkNullString(userName) || selected != SVNUtils.LOGIN_KIND_BASIC) {
             basicUser = new JTextField(50);
         } else {
@@ -406,7 +385,6 @@ public class SVNConfigurationDialog extends KeyDialog {
         // SVNパスワード
         String pw = getDefaultString(SVNPreferences.KEY_PASSWORD, preferences);
         JLabel lblPassword = new JLabel(Messages.getMessage("login_dialog.password_label"));
-//        lblPassword.setPreferredSize(new Dimension(LABEL_WIDTH, LABEL_HEIGHT));
         if (SVNUtils.chkNullString(pw) || selected != SVNUtils.LOGIN_KIND_BASIC) {
             basicPassword = new JPasswordField(36);
             // チェックボックスをoffに設定
@@ -445,7 +423,6 @@ public class SVNConfigurationDialog extends KeyDialog {
         basicAuthPanel.add(new JLabel("      "), BorderLayout.EAST);
         basicAuthPanel.add(inputPanel, BorderLayout.CENTER);
         basicAuthPanel.add(new JLabel("      "), BorderLayout.WEST);
-//        basicAuthPanel.add(passwordPanel, BorderLayout.SOUTH);
 
         return basicAuthPanel;
     }
@@ -529,12 +506,9 @@ public class SVNConfigurationDialog extends KeyDialog {
         JPanel sshAuthPanel  = new JPanel(new BorderLayout());
         JPanel inputPanel    = new JPanel(new BorderLayout());
         JPanel userPanel     = new JPanel(new BorderLayout());
-        JPanel pathPanel     = new JPanel(new BorderLayout());
         JPanel passwordPanel = new JPanel(new BorderLayout());
         JPanel filePanel     = new JPanel();
 
-//        pathPanel.setLayout(new BorderLayout());
-//        sshAuthPanel.setLayout(new BorderLayout());
         sshAuthPanel.setBorder(border);
 
         sshRadio = new JRadioButton(Messages.getMessage("login_dialog.ssh_auth_label"), false);
@@ -552,7 +526,6 @@ public class SVNConfigurationDialog extends KeyDialog {
         // SVNユーザー
         String userName = getDefaultString(SVNPreferences.KEY_USER_NAME, preferences);
         JLabel lblUser = new JLabel(Messages.getMessage("login_dialog.user_label"));
-//        lblUser.setPreferredSize(new Dimension(LABEL_WIDTH, LABEL_HEIGHT));
         if (SVNUtils.chkNullString(userName) || selected != SVNUtils.LOGIN_KIND_SSH) {
             sshUser = new JTextField(50);
         } else {
@@ -565,7 +538,6 @@ public class SVNConfigurationDialog extends KeyDialog {
         // SVNパスワード
         String pw = getDefaultString(SVNPreferences.KEY_PASSWORD, preferences);
         JLabel lblPassword = new JLabel(Messages.getMessage("login_dialog.password_label"));
-//        lblPassword.setPreferredSize(new Dimension(LABEL_WIDTH, LABEL_HEIGHT));
         if (SVNUtils.chkNullString(pw) || selected != SVNUtils.LOGIN_KIND_SSH) {
             sshPassword = new JPasswordField(36);
             // チェックボックスをoffに設定
@@ -604,7 +576,6 @@ public class SVNConfigurationDialog extends KeyDialog {
         String  key = getDefaultString(SVNPreferences.KEY_KEYFILE_PATH, preferences);
         keyFileButton = new JButton(Messages.getMessage("file"));
         JLabel  lblSsh = new JLabel(Messages.getMessage("login_dialog.keyfile_path_label"));
-//        lblSsh.setPreferredSize(new Dimension(LABEL_WIDTH, LABEL_HEIGHT));
         if (SVNUtils.chkNullString(key) || selected != SVNUtils.LOGIN_KIND_SSH) {
             key_file_path = new JTextField(44);
             // キーファイル設定ボタンを無効に設定
@@ -636,11 +607,7 @@ public class SVNConfigurationDialog extends KeyDialog {
         filePanel.add(lblSsh);
         filePanel.add(key_file_path);
         filePanel.add(keyFileButton);
-//        pathPanel.add(passwordPanel, BorderLayout.CENTER);
-//        pathPanel.add(filePanel, BorderLayout.SOUTH);
 
-//        sshAuthPanel.add(userPanel, BorderLayout.CENTER);
-//        sshAuthPanel.add(pathPanel, BorderLayout.SOUTH);
         sshAuthPanel.add(new JLabel("      "), BorderLayout.EAST);
         sshAuthPanel.add(inputPanel, BorderLayout.CENTER);
         sshAuthPanel.add(new JLabel("      "), BorderLayout.WEST);
@@ -671,7 +638,6 @@ public class SVNConfigurationDialog extends KeyDialog {
         // SVNユーザー
         String userName = getDefaultString(SVNPreferences.KEY_USER_NAME, preferences);
         JLabel lblUser = new JLabel(Messages.getMessage("login_dialog.user_label"));
-//        lblUser.setPreferredSize(new Dimension(LABEL_WIDTH, LABEL_HEIGHT));
         if (SVNUtils.chkNullString(userName) || selected != SVNUtils.LOGIN_KIND_NOAUTH) {
             noAuthUser = new JTextField(50);
         } else {
@@ -691,38 +657,14 @@ public class SVNConfigurationDialog extends KeyDialog {
 
         if (key.equals(SVNPreferences.KEY_REPOSITORY_URL)) {
             // 開いているプロジェクトのカレントディレクトリを取得
-//            int markIndex = 0;
-//            SVNURL url = null;
             ProjectAccessor projectAccessor = ProjectAccessorFactory.getProjectAccessor();
             String pjPath = projectAccessor.getProjectPath();
 
             if (!SVNUtils.chkNotSaveProject(pjPath)) {
-//                try {
-//                    SVNStatus status = SVNClientManager.newInstance().getStatusClient().doStatus(new File(pjPath), false);
-//                    if (status != null) {
-//                        url = status.getURL();
-//                        if (url == null) {
-//                            markIndex = pjPath.lastIndexOf(File.separator);
-//                            String path = pjPath.substring(0, markIndex);
-//                            status = SVNClientManager.newInstance().getStatusClient().doStatus(new File(path), false);
-//                            if (status != null) {
-//                                url = status.getURL();
-//                                property = url.toDecodedString();
-//                            }
-//                        } else {
-//                            property = url.toDecodedString();
-//                            markIndex = property.lastIndexOf("/");
-//                            property = property.substring(0, markIndex + 1);
-//                        }
-//                    }
                     String fileURL = SVNUtils.getDefaultRepositoryURL(pjPath);
                     if (!SVNUtils.chkNullString(fileURL)) {
                         property = fileURL;
                     }
-//                } catch (SVNException se) {
-//                    se.printStackTrace();
-//                    throw se;
-//                }
             } else {
                 errFlg = true;
                 property = null;

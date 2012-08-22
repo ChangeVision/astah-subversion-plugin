@@ -19,8 +19,6 @@ import com.change_vision.astah.extension.plugin.svn_prototype.util.SVNUtils;
 public class SVNPasswordDialog extends KeyDialog {
 
     private static final long serialVersionUID = 1L;
-    private static final int  LABEL_WIDTH  = 50;
-    private static final int  LABEL_HEIGHT = 20;
 
     private String password = "";
     private JPasswordField passwordField;
@@ -31,7 +29,6 @@ public class SVNPasswordDialog extends KeyDialog {
         // ダイアログのタイトルを設定
         setTitle(Messages.getMessage("passsword_dialog.title"));
         // ダイアログの大きさを設定
-//        setSize(new Dimension(500, 100));
         setLocationRelativeTo(frame);
         setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 
@@ -41,7 +38,6 @@ public class SVNPasswordDialog extends KeyDialog {
 
         // SVNパスワード
         JLabel lblPassword = new JLabel(Messages.getMessage("login_dialog.password_label"));
-//        lblPassword.setPreferredSize(new Dimension(LABEL_WIDTH, LABEL_HEIGHT));
         passwordField = new JPasswordField(36);
 
         contentPanel.add(lblPassword);

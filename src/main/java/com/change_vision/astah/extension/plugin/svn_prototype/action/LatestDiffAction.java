@@ -6,7 +6,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-//import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 import org.tmatesoft.svn.core.SVNDirEntry;
@@ -20,7 +19,6 @@ import org.tmatesoft.svn.core.wc.SVNWCUtil;
 import com.change_vision.astah.extension.plugin.svn_prototype.Messages;
 import com.change_vision.astah.extension.plugin.svn_prototype.SVNDiffTask;
 import com.change_vision.astah.extension.plugin.svn_prototype.dialog.SVNProgressDialog;
-//import com.change_vision.astah.extension.plugin.svn_prototype.util.LockingGlassPane;
 import com.change_vision.astah.extension.plugin.svn_prototype.util.SVNUtils;
 import com.change_vision.jude.api.inf.exception.ProjectNotFoundException;
 import com.change_vision.jude.api.inf.project.ProjectAccessor;
@@ -76,13 +74,7 @@ public class LatestDiffAction implements IPluginActionDelegate {
             client.doGetFileContents(new File(pjPath), SVNRevision.COMMITTED, SVNRevision.create(revision), false, latestFile);
             latestFile.close();
 
-            /** GlassPane 確認用 */
-//            final JFrame frame = (SVNUtils.getViewManager()).getMainFrame();
-//            frame.setGlassPane(new LockingGlassPane());
-//            frame.getGlassPane().setVisible(false);
-            /** GlassPane 確認用 */
             // プログレスバー設定
-//            final SVNProgressDialog diffDialog = new SVNProgressDialog(frame,
             final SVNProgressDialog diffDialog = new SVNProgressDialog((SVNUtils.getViewManager()).getMainFrame(),
                                                                        Messages.getMessage("progress_diff_title"),
                                                                        Messages.getMessage("progress_diff_message"));
@@ -94,18 +86,12 @@ public class LatestDiffAction implements IPluginActionDelegate {
                 public void propertyChange(PropertyChangeEvent evt) {
                     if("progress".equals(evt.getPropertyName()) && (Integer)evt.getNewValue() == 100){
                         diffDialog.dispose();
-                        /** GlassPane 確認用 */
-//                        frame.getGlassPane().setVisible(false);
-                        /** GlassPane 確認用 */
                     }
                 }
             });
 
             diffTask.execute();
-            /** GlassPane 確認用 */
-//            frame.getGlassPane().setVisible(true);
             diffDialog.setVisible(true);
-            /** GlassPane 確認用 */
         } catch (SVNException se){
             if (!SVNUtils.chkLoginError(se)){
                 JOptionPane.showMessageDialog(null, Messages.getMessage("err_message.common_svn_error"));
