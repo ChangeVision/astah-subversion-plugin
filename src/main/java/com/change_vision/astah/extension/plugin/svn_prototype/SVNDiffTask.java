@@ -14,6 +14,7 @@ import javax.swing.SwingWorker;
 
 import com.change_vision.astah.extension.plugin.svn_prototype.util.SVNPreferences;
 //import com.change_vision.astah.extension.plugin.svn_prototype.util.SVNUtils;
+import com.change_vision.astah.extension.plugin.svn_prototype.util.SvnDiffInputStreamThread;
 
 public class SVNDiffTask extends SwingWorker<List<Integer>, Integer> {
 
@@ -90,6 +91,24 @@ public class SVNDiffTask extends SwingWorker<List<Integer>, Integer> {
                 			                   oldFile,
                 			                   newFile};
                 }
+            } else if (os.matches("^Windows.*")) {
+                if (!commandPath.endsWith(File.separator)){
+                    commandPath = commandPath + File.separator;
+                }
+
+                directFlg = true;
+            	diffCommand = new String[]{"java",
+            			                   "-Xms16m",
+            			                   "-Xmx384m",
+//		                                   "-Xms64m",
+//		                                   "-Xmx1024m",
+            			                   "-Dsun.java2d.noddraw=true",
+            			                   "-cp",
+            			                   commandPath + "astah-pro.jar",
+            			                   "com.change_vision.jude.cmdline.JudeCommandRunner",
+            			                   "-diff",
+            			                   oldFile,
+            			                   newFile};
             }
 //            if (os.matches("^Linux.*")) {
 //                if (!commandPath.endsWith(File.separator)){
@@ -146,44 +165,48 @@ public class SVNDiffTask extends SwingWorker<List<Integer>, Integer> {
             Runtime r = Runtime.getRuntime();
             Process p = r.exec(diffCommand);
 
-            InputStream  pis;
-            OutputStream pos;
-            InputStream  pes;
+            SvnDiffInputStreamThread  pis;
+            SvnDiffInputStreamThread  pes;
             String processResult = "";
             String resultLine = "";
             InputStreamReader isr;
             BufferedReader br;
 
             // プロセス内部で開かれているストリームを閉じる
-            pis = p.getInputStream();
-            pos = p.getOutputStream();
-            pes = p.getErrorStream();
+            pis = new SvnDiffInputStreamThread(p.getInputStream());
+            pes = new SvnDiffInputStreamThread(p.getErrorStream());
+            pis.start();
+            pes.start();
 
-            isr = new InputStreamReader(pes);
-            br  = new BufferedReader(isr);
+//            isr = new InputStreamReader(pes);
+//            br  = new BufferedReader(isr);
+//
+//            while ((resultLine = br.readLine()) != null) {
+//                processResult = processResult + resultLine + "\n";
+//            }
+//
+//            processResult = processResult + "\n\n\n";
+//            resultLine = "";
+//
+//            isr = new InputStreamReader(pis);
+//            br  = new BufferedReader(isr);
+//
+//            while ((resultLine = br.readLine()) != null) {
+//                processResult = processResult + resultLine + "\n";
+//            }
 
-            while ((resultLine = br.readLine()) != null) {
-                processResult = processResult + resultLine + "\n";
-            }
-
-            processResult = processResult + "\n\n\n";
-            resultLine = "";
-
-            isr = new InputStreamReader(pis);
-            br  = new BufferedReader(isr);
-
-            while ((resultLine = br.readLine()) != null) {
-                processResult = processResult + resultLine + "\n";
-            }
-
+            // プロセスの終了待ち
             p.waitFor();
+
+            // InputStreamスレッドの終了待ち
+            pis.join();
+            pes.join();
 
             setProgress(100);
 
 //            System.out.println(processResult);
-            pis.close();
-            pos.close();
-            pes.close();
+//            pis.close();
+//            pes.close();
             p.destroy();
             p = null;
             r.gc();

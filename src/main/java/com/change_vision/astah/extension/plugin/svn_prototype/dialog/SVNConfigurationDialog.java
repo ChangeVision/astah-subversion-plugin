@@ -197,8 +197,8 @@ public class SVNConfigurationDialog extends KeyDialog {
 //        astah_home.setEditable(false);
 
         // 参照ボタンの設定
-        JButton fileButton = new JButton(Messages.getMessage("file"));
-        fileButton.setToolTipText(Messages.getMessage("file"));
+        JButton fileButton = new JButton(Messages.getMessage("dir"));
+        fileButton.setToolTipText(Messages.getMessage("dir"));
         fileButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -320,7 +320,8 @@ public class SVNConfigurationDialog extends KeyDialog {
                     preferences.flush();
 
                     // パスワード入力可能な場合のみ、保存した内容を元にログインチェック
-                    if (basicSavePw.isSelected() || sshSavePw.isSelected()){
+                    if ((basicRadio.isSelected() && basicSavePw.isSelected())
+                     || (sshRadio.isSelected() && sshSavePw.isSelected())){
                         // 保存してあるSubversionログイン情報取得
                         SVNUtils utils = new SVNUtils();
                         if (utils.getPreferencesInfo(Messages.getMessage("err_message.common_svn_error"))){
