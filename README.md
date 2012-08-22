@@ -1,4 +1,4 @@
-Subversion �ȈՑ���v���O�C��
+Subversion 簡易操作プラグイン
 ===============================
 
 Version
@@ -11,27 +11,30 @@ Astah Professional 6.5 or later
 
 Description
 ----------------
-�{�v���O�C����astah*�ォ��ȉ���Subuversion�̑�����s���v���O�C���ł��B
-1. �X�V
-2. �R�~�b�g
-3. �x�[�X���r�W�����Ƃ̍�����r
-4. �ŐV���r�W�����Ƃ̍�����r
+本プラグインはastah*上から以下のSubuversionの操作を行うプラグインです。  
+1. 更新  
+2. コミット  
+3. ベースリビジョンとの差分比較  
+4. 最新リビジョンとの差分比較
 
-�{�v���O�C���͎���i�ł��邽�߁A�ȉ��̏����ɍ����ꍇ�̂ݐ��������삵�܂��B
-1. ���|�W�g���ւ̃��O�C�����@��BASIC�F�؂ł��邱��
-2. ���|�W�g��URL�A���O�C�����[�U�A���O�C���p�X���[�h�̕ۑ���1�A�J�E���g�̂݉\
+本プラグインは試作品であるため、以下の条件に合う場合のみ正しく動作します。  
+1. リポジトリへのログイン方法がBASIC認証であること  
+2. リポジトリURL、ログインユーザ、ログインパスワードの保存は1アカウントのみ可能
 
 
 
 How to install
 ----------------
-1. Astah�̃C���X�g�[���t�H���_�̉���plugins�t�H���_�ɖ{�v���O�C����jar�t�@�C����u���܂��B
-2. Astah���N�����܂��B
-3. ���j���[�o�[�́u�c�[���v�̈�ԉ��Ɂu�Ȉ�SVN����v�ƕ\������Ă��邱�Ƃ��m�F���܂��B
+1. Astahのインストールフォルダの下のpluginsフォルダに本プラグインのjarファイルを置きます。
+2. Astahを起動します。
+3. メニューバーの「ツール」の一番下に「簡易SVN操作」と表示されていることを確認します。
 
-Reference
+Example of use
 ----------------
-
+1. 任意のディレクトリにリポジトリからチェックアウトします。![Alt text](./readme_images/checkout.png "checkout window")
+2. Astahを起動し、図を作成、保存します。
+3. 設定画面を開き、Subversionの設定を行います。![Alt text](./readme_images/config2.png "config window")
+4. リポジトリへのコミットを行います。![Alt text](./readme_images/commit_comment.png "commit comment window")
 
 
 License
