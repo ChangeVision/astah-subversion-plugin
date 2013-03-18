@@ -131,7 +131,7 @@ public class UpdateAction implements IPluginActionDelegate {
         }
     }
 
-    private static boolean svnUpdateMerge(IWindow arg0, SVNUtils utils, String pjPath, SVNClientManager scm) {
+    public static boolean svnUpdateMerge(IWindow arg0, SVNUtils utils, String pjPath, SVNClientManager scm) {
         String errFile = "";
         ProjectAccessor projectAccessor = null;
         try{
@@ -332,5 +332,50 @@ public class UpdateAction implements IPluginActionDelegate {
             return false;
         }
         return true;
+    }
+
+    public String getProjectPath() {
+        // 開いているプロジェクトのパスを取得
+        String pjPath;
+        ProjectAccessor projectAccessor;
+        try {
+            projectAccessor = ProjectAccessorFactory.getProjectAccessor();
+            pjPath = projectAccessor.getProjectPath();
+
+            if (SVNUtils.chkNotSaveProject(pjPath)) {
+                return null;
+            }
+        } catch (ClassNotFoundException e) {
+            JOptionPane.showMessageDialog(null, Messages.getMessage("err_message.common_class_not_found"));
+            return null;
+        } catch (ProjectNotFoundException e) {
+            JOptionPane.showMessageDialog(null, Messages.getMessage("err_message.common_not_open_project"));
+            return null;
+        }
+        return pjPath;
+    }
+
+    public SVNUtils initializeSVN() {
+        // SVNKitの初期化
+        DAVRepositoryFactory.setup();
+        SVNRepositoryFactoryImpl.setup();
+        FSRepositoryFactory.setup( );
+
+        // 保存してあるSubversionログイン情報取得
+        SVNUtils utils = new SVNUtils();
+        if (!utils.getPreferencesInfo(Messages.getMessage("info_message.update_cancel"))){
+            return null;
+        }
+        return utils;
+    }
+
+    public SVNClientManager getSVNClientManager(SVNUtils utils) {
+        SVNClientManager scm;
+        if (SVNUtils.chkNullString(utils.password)){
+            scm = SVNClientManager.newInstance(SVNWCUtil.createDefaultOptions(true), utils.getAuthManager());
+        } else {
+            scm = SVNClientManager.newInstance(SVNWCUtil.createDefaultOptions(true), utils.user, utils.password);
+        }
+        return scm;
     }
 }
