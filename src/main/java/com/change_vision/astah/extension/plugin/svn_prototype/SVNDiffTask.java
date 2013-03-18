@@ -10,6 +10,8 @@ import javax.swing.SwingWorker;
 
 import com.change_vision.astah.extension.plugin.svn_prototype.util.SVNPreferences;
 import com.change_vision.astah.extension.plugin.svn_prototype.util.SvnDiffInputStreamThread;
+import com.change_vision.jude.api.inf.AstahAPI;
+import com.change_vision.jude.api.inf.project.ProjectAccessor;
 
 public class SVNDiffTask extends SwingWorker<List<Integer>, Integer> {
 
@@ -55,12 +57,13 @@ public class SVNDiffTask extends SwingWorker<List<Integer>, Integer> {
                     if (!commandPath.endsWith(File.separator)){
                         commandPath = commandPath + File.separator;
                     }
+                    String jarPath = getMacAstahPath();
                 	directFlg = true;
                 	diffCommand = new String[]{"java",
                 			                   "-Xms64m",
                 			                   "-Xmx1024m",
                 			                   "-cp",
-                			                   commandPath + "astah professional.app/Contents/Resources/Java/astah-pro.jar",
+                			                   jarPath,
                 			                   "com.change_vision.jude.cmdline.JudeCommandRunner",
                 			                   "-diff",
                 			                   oldFile,
@@ -151,5 +154,44 @@ public class SVNDiffTask extends SwingWorker<List<Integer>, Integer> {
 
     public void resetFinishFlg() {
         finishFlg = false;
+    }
+
+    public String getMacAstahPath() {
+        AstahAPI aapi = null;
+        String path = null;
+        String filePath = null;
+
+        try {
+            aapi = AstahAPI.getAstahAPI();
+
+            ProjectAccessor prjAccessor = aapi.getProjectAccessor();
+            path = prjAccessor.getAstahInstallPath();
+
+            // astahのバージョンを取得
+            if (!path.endsWith(File.separator)){
+                path = path + File.separator;
+            }
+
+            filePath = path + "astah professional.app/Contents/Resources/Java/astah-pro.jar";
+            if (!astahExists(filePath)) {
+                filePath = path + "astah professional.app/Contents/Java/astah-pro.jar";
+                if (!astahExists(filePath)) {
+                    JOptionPane.showMessageDialog(null, Messages.getMessage("err_message.common_file_not_found"));
+                    return null;
+                }
+            }
+        } catch (ClassNotFoundException e) {
+            JOptionPane.showMessageDialog(null, Messages.getMessage("err_message.common_class_not_found"));
+            return null;
+        }
+        return filePath;
+    }
+
+    public boolean astahExists(String path) {
+        File file = new File(path);
+        if (file.exists()) {
+            return true; 
+        }
+        return false;
     }
 }
