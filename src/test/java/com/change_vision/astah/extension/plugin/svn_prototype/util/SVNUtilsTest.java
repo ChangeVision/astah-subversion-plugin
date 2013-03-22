@@ -13,6 +13,7 @@ import org.tmatesoft.svn.core.SVNException;
 import org.tmatesoft.svn.core.auth.ISVNAuthenticationManager;
 import org.tmatesoft.svn.core.io.SVNRepository;
 
+import com.change_vision.astah.extension.plugin.svn_prototype.exception.SVNNotConfigurationException;
 import com.change_vision.jude.api.inf.exception.LicenseNotFoundException;
 import com.change_vision.jude.api.inf.exception.NonCompatibleException;
 import com.change_vision.jude.api.inf.exception.ProjectLockedException;
@@ -26,7 +27,7 @@ import static org.hamcrest.core.IsNull.notNullValue;
 import static org.mockito.Mockito.mock;
 
 public class SVNUtilsTest {
-    private final String SVN_FILE_PATH = "C:\\Documents and Settings\\kasaba\\ƒfƒXƒNƒgƒbƒv\\svn_repository\\sample.asta";
+    private final String SVN_FILE_PATH = "./svn_prototype/src/test/resources/com/change_vision/astah/extension/plugin/svn_prototype/sample.asta";
     private final String SVN_REPOSITORY_URL = "file:///C:/svn_repository";
     private final String SVN_USER = "kasaba";
     private final String SVN_PASSWORD = "";
@@ -46,8 +47,14 @@ public class SVNUtilsTest {
         }
 
         SVNUtils utils = new SVNUtils();
-        boolean result = utils.getPreferencesInfo("ƒLƒƒƒ“ƒZƒ‹ƒƒbƒZ[ƒW");
-        assertThat(result, is(true));
+        boolean result;
+        try {
+            result = utils.getPreferencesInfo("ï¿½Lï¿½ï¿½ï¿½ï¿½ï¿½Zï¿½ï¿½ï¿½ï¿½ï¿½bï¿½Zï¿½[ï¿½W");
+            assertThat(result, is(true));
+        } catch (SVNNotConfigurationException e) {
+            e.printStackTrace();
+            fail("throw SVNNotConfigurationException!");
+        }
     }
 
     @Test
@@ -154,7 +161,12 @@ public class SVNUtilsTest {
         }
 
         SVNUtils utils = new SVNUtils();
-        utils.getPreferencesInfo("ƒLƒƒƒ“ƒZƒ‹ƒƒbƒZ[ƒW");
+        try {
+            utils.getPreferencesInfo("ï¿½Lï¿½ï¿½ï¿½ï¿½ï¿½Zï¿½ï¿½ï¿½ï¿½ï¿½bï¿½Zï¿½[ï¿½W");
+        } catch (SVNNotConfigurationException e) {
+            e.printStackTrace();
+            fail("throw SVNNotConfigurationException!");
+        }
         ISVNAuthenticationManager manager = utils.getAuthManager();
         assertThat(manager, is(notNullValue()));
     }

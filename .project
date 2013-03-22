@@ -3,6 +3,7 @@
 	<name>svn_prototype</name>
 	<comment></comment>
 	<projects>
+		<project>jude</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
@@ -21,4 +22,16 @@
 		<nature>org.eclipse.jdt.core.javanature</nature>
 		<nature>org.eclipse.m2e.core.maven2Nature</nature>
 	</natures>
+	<linkedResources>
+		<link>
+			<name>java</name>
+			<type>2</type>
+			<location>C:/pj_astah/jude/src/main/java</location>
+		</link>
+		<link>
+			<name>main</name>
+			<type>2</type>
+			<location>C:/pj_astah/jude/src/main</location>
+		</link>
+	</linkedResources>
 </projectDescription>

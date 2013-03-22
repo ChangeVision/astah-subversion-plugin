@@ -1,30 +1,33 @@
-package com.change_vision.astah.extension.plugin.svn_prototype;
+package com.change_vision.astah.extension.plugin.svn_prototype.task;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.prefs.Preferences;
 
-import javax.swing.JOptionPane;
-import javax.swing.SwingWorker;
-
+import com.change_vision.astah.extension.plugin.svn_prototype.Messages;
+import com.change_vision.astah.extension.plugin.svn_prototype.dialog.MessageDialog;
+import com.change_vision.astah.extension.plugin.svn_prototype.exception.SVNPluginException;
 import com.change_vision.astah.extension.plugin.svn_prototype.util.SVNPreferences;
 import com.change_vision.astah.extension.plugin.svn_prototype.util.SvnDiffInputStreamThread;
-import com.change_vision.jude.api.inf.AstahAPI;
+//import com.change_vision.jude.api.inf.AstahAPI;
 import com.change_vision.jude.api.inf.project.ProjectAccessor;
+import com.change_vision.jude.api.inf.project.ProjectAccessorFactory;
 
-public class SVNDiffTask extends SwingWorker<List<Integer>, Integer> {
+public class SVNDiffTask {
 
     private String  oldFile;
     private String  newFile;
     private boolean finishFlg;
     private boolean newFileDeleteFlg;
+    private MessageDialog messageDialog;
 
     public SVNDiffTask(String file1, String file2){
         oldFile   = file1;
         newFile   = file2;
         finishFlg = false;
         newFileDeleteFlg = false;
+        messageDialog = new MessageDialog();
     }
 
     public SVNDiffTask(String file1, String file2, boolean newFileDeleteFlg){
@@ -32,10 +35,26 @@ public class SVNDiffTask extends SwingWorker<List<Integer>, Integer> {
         newFile   = file2;
         finishFlg = false;
         this.newFileDeleteFlg = newFileDeleteFlg;
+        messageDialog = new MessageDialog();
     }
 
-    @Override
-    protected List<Integer> doInBackground() {
+    public SVNDiffTask(String file1, String file2, MessageDialog messageDialog){
+        oldFile   = file1;
+        newFile   = file2;
+        finishFlg = false;
+        newFileDeleteFlg = false;
+        this.messageDialog = messageDialog;
+    }
+
+    public SVNDiffTask(String file1, String file2, boolean newFileDeleteFlg, MessageDialog messageDialog){
+        oldFile   = file1;
+        newFile   = file2;
+        finishFlg = false;
+        this.newFileDeleteFlg = newFileDeleteFlg;
+        this.messageDialog = messageDialog;
+    }
+
+    public List<Integer> doInBackground() throws SVNPluginException {
         try {
             boolean directFlg = false;
             SVNPreferences.getInstace(this.getClass());
@@ -125,22 +144,23 @@ public class SVNDiffTask extends SwingWorker<List<Integer>, Integer> {
             pis.join();
             pes.join();
 
-            setProgress(100);
+//            setProgress(100);
 
             p.destroy();
             p = null;
             r.gc();
             finishFlg = true;
         } catch(IOException ie) {
-            JOptionPane.showMessageDialog(null, Messages.getMessage("err_message.common_exception_from_commandline_tool"));
+            throw new SVNPluginException(Messages.getMessage("err_message.common_exception_from_commandline_tool"), ie);
+//            JOptionPane.showMessageDialog(null, Messages.getMessage("err_message.common_exception_from_commandline_tool"));
         } catch(InterruptedException ine) {
-            JOptionPane.showMessageDialog(null, Messages.getMessage("err_message.common_exception_from_commandline_tool"));
+            throw new SVNPluginException(Messages.getMessage("err_message.common_exception_from_commandline_tool"), ine);
+//            JOptionPane.showMessageDialog(null, Messages.getMessage("err_message.common_exception_from_commandline_tool"));
         }
         return null;
     }
 
-    @Override
-    protected void done() {
+    public void done() {
         if (newFileDeleteFlg){
             // 表示後は、比較対象のファイルを削除
             File file = new File(newFile);
@@ -156,15 +176,16 @@ public class SVNDiffTask extends SwingWorker<List<Integer>, Integer> {
         finishFlg = false;
     }
 
-    public String getMacAstahPath() {
-        AstahAPI aapi = null;
+    public String getMacAstahPath() throws SVNPluginException {
+//        AstahAPI aapi = null;
         String path = null;
         String filePath = null;
 
         try {
-            aapi = AstahAPI.getAstahAPI();
+//            aapi = AstahAPI.getAstahAPI();
 
-            ProjectAccessor prjAccessor = aapi.getProjectAccessor();
+//            ProjectAccessor prjAccessor = aapi.getProjectAccessor();
+            ProjectAccessor prjAccessor = ProjectAccessorFactory.getProjectAccessor();
             path = prjAccessor.getAstahInstallPath();
 
             // astahのバージョンを取得
@@ -176,13 +197,15 @@ public class SVNDiffTask extends SwingWorker<List<Integer>, Integer> {
             if (!astahExists(filePath)) {
                 filePath = path + "astah professional.app/Contents/Java/astah-pro.jar";
                 if (!astahExists(filePath)) {
-                    JOptionPane.showMessageDialog(null, Messages.getMessage("err_message.common_file_not_found"));
+                    messageDialog.showKeyMessage("err_message.common_file_not_found");
+//                    JOptionPane.showMessageDialog(null, Messages.getMessage("err_message.common_file_not_found"));
                     return null;
                 }
             }
         } catch (ClassNotFoundException e) {
-            JOptionPane.showMessageDialog(null, Messages.getMessage("err_message.common_class_not_found"));
-            return null;
+            throw new SVNPluginException(Messages.getMessage("err_message.common_class_not_found"), e);
+//            JOptionPane.showMessageDialog(null, Messages.getMessage("err_message.common_class_not_found"));
+//            return null;
         }
         return filePath;
     }

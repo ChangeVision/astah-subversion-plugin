@@ -1,4 +1,4 @@
-package com.change_vision.astah.extension.plugin.svn_prototype;
+package com.change_vision.astah.extension.plugin.svn_prototype.task;
 
 import static org.junit.Assert.*;
 import static org.hamcrest.core.Is.is;
@@ -11,13 +11,14 @@ import java.util.prefs.Preferences;
 import org.junit.Test;
 
 import com.change_vision.astah.extension.plugin.svn_prototype.dialog.SVNConfigurationDialog;
+import com.change_vision.astah.extension.plugin.svn_prototype.exception.SVNPluginException;
+import com.change_vision.astah.extension.plugin.svn_prototype.task.SVNDiffTask;
 import com.change_vision.astah.extension.plugin.svn_prototype.util.SVNPreferences;
 
 public class SVNDiffTaskTest {
-    private final String OLD_FILE_PATH = "C:\\pj_astah\\svn_prototype\\src\\test\\resources\\com\\change_vision\\astah\\extension\\plugin\\svn_prototype\\newFile.asta";
-    private final String NEW_FILE_PATH = "C:\\pj_astah\\svn_prototype\\src\\test\\resources\\com\\change_vision\\astah\\extension\\plugin\\svn_prototype\\newFile.asta";
+    private final String OLD_FILE_PATH = "./svn_prototype/src/test/resources/com/change_vision/astah/extension/plugin/svn_prototype/oldFile.asta";
+    private final String NEW_FILE_PATH = "./svn_prototype/src/test/resources/com/change_vision/astah/extension/plugin/svn_prototype/newFile.asta";
     private final String ASTAH_PATH = "C:\\Program Files\\astah-professional\\";
-    
 
     @Test
     public void testSVNDiffTaskStringString() {
@@ -56,8 +57,14 @@ public class SVNDiffTaskTest {
         Preferences sp = SVNPreferences.getInstace(SVNConfigurationDialog.class);
         sp.put(SVNPreferences.KEY_ASTAH_HOME, ASTAH_PATH);
         SVNDiffTask sdt = new SVNDiffTask(OLD_FILE_PATH, NEW_FILE_PATH, false);
-        List<Integer> list = sdt.doInBackground();
-        assertThat(list, is(nullValue()));
+        List<Integer> list;
+        try {
+            list = sdt.doInBackground();
+            assertThat(list, is(nullValue()));
+        } catch (SVNPluginException e) {
+            e.printStackTrace();
+            fail("throw SVNPluginException!");
+        }
     }
 
     @Test
@@ -72,10 +79,16 @@ public class SVNDiffTaskTest {
         Preferences sp = SVNPreferences.getInstace(SVNConfigurationDialog.class);
         sp.put(SVNPreferences.KEY_ASTAH_HOME, ASTAH_PATH);
         SVNDiffTask sdt = new SVNDiffTask(OLD_FILE_PATH, NEW_FILE_PATH, false);
-        List<Integer> list = sdt.doInBackground();
-        boolean finishFlg = sdt.getFinishFlg();
-        assertThat(list, is(nullValue()));
-        assertThat(finishFlg, is(true));
+        List<Integer> list;
+        try {
+            list = sdt.doInBackground();
+            boolean finishFlg = sdt.getFinishFlg();
+            assertThat(list, is(nullValue()));
+            assertThat(finishFlg, is(true));
+        } catch (SVNPluginException e) {
+            e.printStackTrace();
+            fail("throw SVNPluginException!");
+        }
     }
 
     @Test
@@ -83,14 +96,20 @@ public class SVNDiffTaskTest {
         Preferences sp = SVNPreferences.getInstace(SVNConfigurationDialog.class);
         sp.put(SVNPreferences.KEY_ASTAH_HOME, ASTAH_PATH);
         SVNDiffTask sdt = new SVNDiffTask(OLD_FILE_PATH, NEW_FILE_PATH, false);
-        List<Integer> list = sdt.doInBackground();
-        boolean finishFlg = sdt.getFinishFlg();
-        assertThat(list, is(nullValue()));
-        assertThat(finishFlg, is(true));
+        List<Integer> list;
+        try {
+            list = sdt.doInBackground();
+            boolean finishFlg = sdt.getFinishFlg();
+            assertThat(list, is(nullValue()));
+            assertThat(finishFlg, is(true));
 
-        sdt.resetFinishFlg();
+            sdt.resetFinishFlg();
 
-        finishFlg = sdt.getFinishFlg();
-        assertThat(finishFlg, is(false));
+            finishFlg = sdt.getFinishFlg();
+            assertThat(finishFlg, is(false));
+        } catch (SVNPluginException e) {
+            e.printStackTrace();
+            fail("throw SVNPluginException!");
+        }
     }
 }

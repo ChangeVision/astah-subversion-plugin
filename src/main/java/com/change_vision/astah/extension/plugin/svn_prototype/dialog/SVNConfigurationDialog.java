@@ -26,6 +26,8 @@ import javax.swing.border.BevelBorder;
 import org.tmatesoft.svn.core.SVNException;
 
 import com.change_vision.astah.extension.plugin.svn_prototype.Messages;
+import com.change_vision.astah.extension.plugin.svn_prototype.exception.SVNNotConfigurationException;
+import com.change_vision.astah.extension.plugin.svn_prototype.exception.SVNPluginException;
 import com.change_vision.astah.extension.plugin.svn_prototype.dialog.KeyDialog;
 import com.change_vision.astah.extension.plugin.svn_prototype.util.SVNPreferences;
 import com.change_vision.astah.extension.plugin.svn_prototype.util.SVNUtils;
@@ -63,8 +65,17 @@ public class SVNConfigurationDialog extends KeyDialog {
 
     private boolean errFlg = false;
 
+    private MessageDialog messageDialog;
+
     public SVNConfigurationDialog(JFrame frame) throws SVNException, ProjectNotFoundException, UnsupportedEncodingException, ClassNotFoundException {
         super(frame, true);
+        this.messageDialog = new MessageDialog();
+        getDialog(frame);
+    }
+
+    public SVNConfigurationDialog(JFrame frame, MessageDialog messageDialog) throws SVNException, ProjectNotFoundException, UnsupportedEncodingException, ClassNotFoundException {
+        super(frame, true);
+        this.messageDialog = messageDialog;
         getDialog(frame);
     }
 
@@ -126,7 +137,8 @@ public class SVNConfigurationDialog extends KeyDialog {
 
             JLabel lblRepository = new JLabel(" " + Messages.getMessage("login_dialog.repository_label") + " ");
             if (SVNUtils.chkNullString(url)) {
-                JOptionPane.showMessageDialog(null, Messages.getMessage("err_message.config_not_entered_repository"));
+                messageDialog.showKeyMessage("err_message.config_not_entered_repository");
+//                JOptionPane.showMessageDialog(null, Messages.getMessage("err_message.config_not_entered_repository"));
                 repository = new JTextField(50);
             } else {
                 repository = new JTextField(url, 50);
@@ -231,13 +243,15 @@ public class SVNConfigurationDialog extends KeyDialog {
                     if (!SVNUtils.chkNullString(astah_home.getText())) {
                         preferences.put(SVNPreferences.KEY_ASTAH_HOME, astah_home.getText());
                     } else {
-                        JOptionPane.showMessageDialog(null, Messages.getMessage("err_message.config_not_choice_astah"));
+                        messageDialog.showKeyMessage("err_message.config_not_choice_astah");
+//                        JOptionPane.showMessageDialog(null, Messages.getMessage("err_message.config_not_choice_astah"));
                         return;
                     }
                     if (!SVNUtils.chkNullString(repository.getText())) {
                         preferences.put(SVNPreferences.KEY_REPOSITORY_URL, repository.getText());
                     } else {
-                        JOptionPane.showMessageDialog(null, Messages.getMessage("err_message.config_not_entered_repository"));
+                        messageDialog.showKeyMessage("err_message.config_not_entered_repository");
+//                        JOptionPane.showMessageDialog(null, Messages.getMessage("err_message.config_not_entered_repository"));
                         return;
                     }
 
@@ -247,7 +261,8 @@ public class SVNConfigurationDialog extends KeyDialog {
                         if (basicSavePw.isSelected()){
                             password = String.valueOf(basicPassword.getPassword());
                             if (SVNUtils.chkNullString(password)) {
-                                JOptionPane.showMessageDialog(null, Messages.getMessage("err_message.config_not_entered_password"));
+                                messageDialog.showKeyMessage("err_message.config_not_entered_password");
+//                                JOptionPane.showMessageDialog(null, Messages.getMessage("err_message.config_not_entered_password"));
                                 return;
                             }
                         }
@@ -259,7 +274,8 @@ public class SVNConfigurationDialog extends KeyDialog {
                         if (sshSavePw.isSelected()){
                             password = String.valueOf(sshPassword.getPassword());
                             if (SVNUtils.chkNullString(password)) {
-                                JOptionPane.showMessageDialog(null, Messages.getMessage("err_message.config_not_entered_password"));
+                                messageDialog.showKeyMessage("err_message.config_not_entered_password");
+//                                JOptionPane.showMessageDialog(null, Messages.getMessage("err_message.config_not_entered_password"));
                                 return;
                             }
                         }
@@ -270,14 +286,16 @@ public class SVNConfigurationDialog extends KeyDialog {
                         if (!SVNUtils.chkNullString(keyFile)) {
                             preferences.put(SVNPreferences.KEY_KEYFILE_PATH, key_file_path.getText());
                         } else if (sshSavePw.isSelected()) {
-                            JOptionPane.showMessageDialog(null, Messages.getMessage("err_message.config_not_entered_keyfile"));
+                            messageDialog.showKeyMessage("err_message.config_not_entered_keyfile");
+//                            JOptionPane.showMessageDialog(null, Messages.getMessage("err_message.config_not_entered_keyfile"));
                             return;
                         }
                     } else if (noAuthRadio.isSelected()){
                         user = noAuthUser.getText();
                         loginKind = SVNUtils.LOGIN_KIND_NOAUTH;
                     } else {
-                        JOptionPane.showMessageDialog(null, Messages.getMessage("err_message.config_not_selected_auth"));
+                        messageDialog.showKeyMessage("err_message.config_not_selected_auth");
+//                        JOptionPane.showMessageDialog(null, Messages.getMessage("err_message.config_not_selected_auth"));
                         return;
                     }
 
@@ -285,7 +303,8 @@ public class SVNConfigurationDialog extends KeyDialog {
                     if (!SVNUtils.chkNullString(user)) {
                         preferences.put(SVNPreferences.KEY_USER_NAME, user);
                     } else {
-                        JOptionPane.showMessageDialog(null, Messages.getMessage("err_message.config_not_entered_user"));
+                        messageDialog.showKeyMessage("err_message.config_not_entered_user");
+//                        JOptionPane.showMessageDialog(null, Messages.getMessage("err_message.config_not_entered_user"));
                         return;
                     }
 
@@ -310,9 +329,10 @@ public class SVNConfigurationDialog extends KeyDialog {
                         // 保存してあるSubversionログイン情報取得
                         SVNUtils utils = new SVNUtils();
                         if (utils.getPreferencesInfo(Messages.getMessage("err_message.common_svn_error"))){
-                            // 保存した内容を使用して最新リビジョン番号を取得
-                            (utils.repos).getLatestRevision();
-                            // ログイン可能であればウィンドウを閉じる処理
+                            // 使用して最新リビジョン番号を取得することで、
+                            // 保存したユーザ、パスワードが妥当であることを確認する。
+                            utils.getLatestRevision();
+                            // Exceptionが発生せず、ログインできたので、ウィンドウを閉じる
                             dispose();
                         }
                     } else {
@@ -325,10 +345,12 @@ public class SVNConfigurationDialog extends KeyDialog {
                     JOptionPane.showMessageDialog(null, Messages.getMessage("err_message.config_fails_password_encryption"));
                 } catch (SVNException se) {
                     if (!SVNUtils.chkLoginError(se)){
-                        // それ以外のSVN関連エラー
+                        // ログインエラー以外のSVN関連エラー
                         JOptionPane.showMessageDialog(null, Messages.getMessage("err_message.common_svn_error"));
                     }
                     return;
+                } catch (SVNNotConfigurationException sce) {
+                    JOptionPane.showMessageDialog(null, Messages.getMessage("err_message.common_not_config"));
                 }
             }
         });

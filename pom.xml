@@ -11,7 +11,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.change_vision.astah.extension.plugin.svn_prototype</groupId>
   <artifactId>svn_prototype</artifactId>
-  <version>1.0.15</version>
+  <version>1.0.16</version>
   <packaging>jar</packaging>
   <name>%bundle.name</name>
   <description>%bundle.description</description>
@@ -264,6 +264,13 @@
       <version>${astah.version}</version>
       <scope>system</scope>
       <systemPath>${astahPath}/astah-api.jar</systemPath>
+    </dependency>
+    <dependency>
+      <groupId>com.change_vision.astah</groupId>
+      <artifactId>astah-pro</artifactId>
+      <version>${astah.version}</version>
+      <scope>system</scope>
+      <systemPath>${astahPath}/astah-pro.jar</systemPath>
     </dependency>
     <dependency>
       <groupId>org.osgi</groupId>

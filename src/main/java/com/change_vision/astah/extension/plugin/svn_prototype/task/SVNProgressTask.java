@@ -1,13 +1,12 @@
-package com.change_vision.astah.extension.plugin.svn_prototype;
+package com.change_vision.astah.extension.plugin.svn_prototype.task;
 
 import java.util.List;
 
 import javax.swing.JFrame;
-import javax.swing.SwingWorker;
 
 import com.change_vision.astah.extension.plugin.svn_prototype.dialog.SVNProgressDialog;
 
-public class SVNProgressTask extends SwingWorker<List<Integer>, Integer> {
+public class SVNProgressTask {
 
     private JFrame frame = null;
     private SVNProgressDialog dialog = null;
@@ -16,8 +15,7 @@ public class SVNProgressTask extends SwingWorker<List<Integer>, Integer> {
         frame = f;
     }
 
-    @Override
-    protected List<Integer> doInBackground() throws Exception {
+    public List<Integer> doInBackground() throws Exception {
         dialog = new SVNProgressDialog(frame);
         dialog.setVisible(true);
         return null;

@@ -1,17 +1,16 @@
-package com.change_vision.astah.extension.plugin.svn_prototype;
+package com.change_vision.astah.extension.plugin.svn_prototype.task;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import javax.swing.SwingWorker;
-
 import org.tmatesoft.svn.core.SVNDepth;
 import org.tmatesoft.svn.core.SVNException;
 import org.tmatesoft.svn.core.wc.SVNWCClient;
 
-import com.change_vision.astah.extension.plugin.svn_prototype.action.UpdateAction;
+import com.change_vision.astah.extension.plugin.svn_prototype.core.SVNUpdate;
 import com.change_vision.astah.extension.plugin.svn_prototype.dialog.SVNSelectMergeDialog;
+import com.change_vision.astah.extension.plugin.svn_prototype.exception.SVNConflictException;
 import com.change_vision.astah.extension.plugin.svn_prototype.util.SVNUtils;
 import com.change_vision.jude.api.inf.exception.InvalidEditingException;
 import com.change_vision.jude.api.inf.exception.LicenseNotFoundException;
@@ -19,9 +18,8 @@ import com.change_vision.jude.api.inf.exception.NonCompatibleException;
 import com.change_vision.jude.api.inf.exception.ProjectLockedException;
 import com.change_vision.jude.api.inf.exception.ProjectNotFoundException;
 import com.change_vision.jude.api.inf.project.ProjectAccessor;
-import com.change_vision.jude.api.inf.ui.IWindow;
 
-public class SVNMergeTask extends SwingWorker<List<Integer>, Integer> {
+public class SVNMergeTask {
 
     private int selected = 0;
 
@@ -29,17 +27,14 @@ public class SVNMergeTask extends SwingWorker<List<Integer>, Integer> {
 
     private String pjPath   = null;
 
-    private IWindow window = null;
-
     private SVNWCClient   wcClient = null;
 
     private ProjectAccessor projectAccessor = null;
 
     private SVNUtils utils = null;
 
-    public SVNMergeTask(String pjPath, IWindow window, SVNWCClient wcClient, ProjectAccessor projectAccessor) throws SVNException{
+    public SVNMergeTask(String pjPath, SVNWCClient wcClient, ProjectAccessor projectAccessor){
         this.pjPath = pjPath;
-        this.window = window;
         this.wcClient = wcClient;
         this.projectAccessor = projectAccessor;
     }
@@ -56,11 +51,10 @@ public class SVNMergeTask extends SwingWorker<List<Integer>, Integer> {
         this.utils    = utils;
     }
 
-    @Override
-    protected List<Integer> doInBackground() throws InvalidEditingException, SVNException,
+    public List<Integer> doInBackground() throws InvalidEditingException, SVNException,
                                                     LicenseNotFoundException, ProjectNotFoundException,
                                                     NonCompatibleException, IOException,
-                                                    ClassNotFoundException, ProjectLockedException
+                                                    ClassNotFoundException, ProjectLockedException, SVNConflictException
     {
         // 開いているプロジェクトのパス、ファイル名を取得
         int markIndex = pjPath.lastIndexOf(File.separator);
@@ -90,7 +84,7 @@ public class SVNMergeTask extends SwingWorker<List<Integer>, Integer> {
         }
 
         // 競合時に発生し、リネームした「～.asta.r…」ファイルのファイル名をもとに戻す
-        UpdateAction.fileRenameAction(newFileName, pjPath + ".r" + revision);
+        SVNUpdate.fileRenameAction(newFileName, pjPath + ".r" + revision);
 
         // 処理対象のファイルのファイルオブジェクト
         File pjFile = new File(pjPath);
@@ -122,7 +116,9 @@ public class SVNMergeTask extends SwingWorker<List<Integer>, Integer> {
             wcClient.doRevert(new File[]{pjFile}, SVNDepth.INFINITY, null);
             if (originRevision != revision) {
                 // 「特定のリビジョンへ更新」処理
-                UpdateAction.doUpdate(window, utils, originRevision, pjPath);
+                SVNUpdate sUpdate = new SVNUpdate();
+                sUpdate.setUtils(utils);
+                sUpdate.doUpdate(originRevision, pjPath);
             }
         } else {
             // 競合解消のため、「元に戻す」処理を実行
@@ -135,17 +131,15 @@ public class SVNMergeTask extends SwingWorker<List<Integer>, Integer> {
         } else {
             if (!pjFile.delete()) {
                 // 元のファイルをリネーム
-                UpdateAction.fileRenameAction(pjPath, pjPath + ".old");
+                SVNUpdate.fileRenameAction(pjPath, pjPath + ".old");
                 File oldFile = new File(pjPath + ".old");
                 oldFile.delete();
             }
             // マージしたプロジェクトのプロジェクト名を本来のファイル名に変更
-            UpdateAction.fileRenameAction(workFile, pjPath);
+            SVNUpdate.fileRenameAction(workFile, pjPath);
         }
         // プロジェクトを開く
         projectAccessor.open(pjPath);
-
-        setProgress(100);
 
         return null;
     }

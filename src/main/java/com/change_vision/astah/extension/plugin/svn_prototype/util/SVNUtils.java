@@ -13,8 +13,8 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import javax.swing.JFrame;
-import javax.swing.JOptionPane;
 
+import org.tmatesoft.svn.core.SVNDirEntry;
 import org.tmatesoft.svn.core.SVNException;
 import org.tmatesoft.svn.core.SVNURL;
 import org.tmatesoft.svn.core.auth.ISVNAuthenticationManager;
@@ -30,8 +30,10 @@ import org.tmatesoft.svn.core.wc.SVNStatus;
 import org.tmatesoft.svn.core.wc.SVNWCUtil;
 
 import com.change_vision.astah.extension.plugin.svn_prototype.Messages;
+import com.change_vision.astah.extension.plugin.svn_prototype.dialog.MessageDialog;
 import com.change_vision.astah.extension.plugin.svn_prototype.dialog.SVNConfigurationDialog;
 import com.change_vision.astah.extension.plugin.svn_prototype.dialog.SVNPasswordDialog;
+import com.change_vision.astah.extension.plugin.svn_prototype.exception.SVNNotConfigurationException;
 import com.change_vision.jude.api.inf.exception.InvalidUsingException;
 import com.change_vision.jude.api.inf.exception.ProjectNotFoundException;
 import com.change_vision.jude.api.inf.project.ProjectAccessor;
@@ -48,14 +50,17 @@ public class SVNUtils {
     public static final int LOGIN_KIND_SSH    = 2;
     public static final int LOGIN_KIND_NOAUTH = 3;
 
-    public  int    loginKind;
-    public  String user;
-    public  String password;
-    public  String repository;
-    public  String keyFilePath;
-    public  SVNRepository repos;
+    private  int    loginKind;
+
+    private  String user;
+    private  String password;
+    private  String repository;
+    private  String keyFilePath;
+    private  SVNRepository repos;
 
     private ISVNAuthenticationManager authManager;
+
+    private static MessageDialog messageDialog;
 
     public SVNUtils(){
         loginKind  = 0;
@@ -64,12 +69,74 @@ public class SVNUtils {
         password   = null;
         repository = null;
         repos      = null;
+
+        messageDialog = new MessageDialog();
     }
 
-    public boolean getPreferencesInfo(String cancelMessage){
+    public int getLoginKind() {
+        return loginKind;
+    }
+
+    public void setLoginKind(int loginKind) {
+        this.loginKind = loginKind;
+    }
+
+    public String getUser() {
+        return user;
+    }
+
+    public void setUser(String user) {
+        this.user = user;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getRepository() {
+        return repository;
+    }
+
+    public void setRepository(String repository) {
+        this.repository = repository;
+    }
+
+    public String getKeyFilePath() {
+        return keyFilePath;
+    }
+
+    public void setKeyFilePath(String keyFilePath) {
+        this.keyFilePath = keyFilePath;
+    }
+
+    public SVNRepository getRepos() {
+        return repos;
+    }
+
+    public void setRepos(SVNRepository repos) {
+        this.repos = repos;
+    }
+
+    public static void setMessageDialog(MessageDialog messageDialog) {
+        SVNUtils.messageDialog = messageDialog;
+    }
+
+    public Long getLatestRevision() throws SVNException {
+        return repos.getLatestRevision();
+    }
+
+    public SVNDirEntry getSVNDirEntry(String fileName) throws SVNException {
+        return getRepos().info(fileName, -1);
+    }
+
+    public boolean getPreferencesInfo(String cancelMessage) throws SVNNotConfigurationException{
         try{
             // レジストリに保存してある値を取得
-        	File keyFile = null;
+            File keyFile = null;
             Preferences preferences = SVNPreferences.getInstace(SVNConfigurationDialog.class);
 
             loginKind   = Integer.parseInt(preferences.get(SVNPreferences.KEY_LOGIN_KIND, null));
@@ -79,15 +146,16 @@ public class SVNUtils {
             keyFilePath = preferences.get(SVNPreferences.KEY_KEYFILE_PATH, null);
 
             if (!chkNullString(keyFilePath)) {
-                keyFile = new File(preferences.get(SVNPreferences.KEY_KEYFILE_PATH, null));
+                keyFile = new File(keyFilePath);
             }
 
             if (SVNUtils.chkNullString(repository)
              && SVNUtils.chkNullString(user)
              && SVNUtils.chkNullString(password)) {
                 // Subversionの設定が未設定
-                JOptionPane.showMessageDialog(null, Messages.getMessage("err_message.common_not_config"));
-                return false;
+//                messageDialog.showKeyMessage("err_message.common_not_config");
+//                JOptionPane.showMessageDialog(null, Messages.getMessage("err_message.common_not_config"));
+                throw new SVNNotConfigurationException(Messages.getMessage("err_message.common_not_config"));
             }
 
             if (loginKind == LOGIN_KIND_BASIC){
@@ -96,7 +164,8 @@ public class SVNUtils {
                     pwDialog.setVisible(true);
                     password = pwDialog.getPassword();
                     if (SVNUtils.chkNullString(password) && SVNUtils.chkNullString(keyFilePath)){
-                        JOptionPane.showMessageDialog(null, cancelMessage);
+                        messageDialog.showMessage(cancelMessage);
+//                        JOptionPane.showMessageDialog(null, cancelMessage);
                         return false;
                     }
                 } else {
@@ -115,7 +184,8 @@ public class SVNUtils {
                                                                 );
                     repos.setAuthenticationManager(authManager);
                 } else {
-                    JOptionPane.showMessageDialog(null, cancelMessage);
+                    messageDialog.showMessage(cancelMessage);
+//                    JOptionPane.showMessageDialog(null, cancelMessage);
                     return false;
                 }
             } else if (loginKind == LOGIN_KIND_SSH) {
@@ -139,7 +209,8 @@ public class SVNUtils {
                         password = pwDialog.getPassword();
 
                         if (SVNUtils.chkNullString(password) && SVNUtils.chkNullString(keyFilePath)){
-                            JOptionPane.showMessageDialog(null, cancelMessage);
+                            messageDialog.showMessage(cancelMessage);
+//                            JOptionPane.showMessageDialog(null, cancelMessage);
                             return false;
                         }
                     } else {
@@ -158,11 +229,13 @@ public class SVNUtils {
                                                                                              );
                         repos.setAuthenticationManager(authManager);
                     } else {
-                        JOptionPane.showMessageDialog(null, cancelMessage);
+                        messageDialog.showMessage(cancelMessage);
+//                        JOptionPane.showMessageDialog(null, cancelMessage);
                         return false;
                     }
                 } else {
-                    JOptionPane.showMessageDialog(null, cancelMessage);
+                    messageDialog.showMessage(cancelMessage);
+//                    JOptionPane.showMessageDialog(null, cancelMessage);
                     return false;
                 }
             } else if (loginKind == LOGIN_KIND_NOAUTH) {
@@ -177,16 +250,20 @@ public class SVNUtils {
                 }
             }
         } catch (SVNException se) {
-            JOptionPane.showMessageDialog(null, Messages.getMessage("err_message.common_svn_error"));
+            messageDialog.showKeyMessage("err_message.common_svn_error");
+//            JOptionPane.showMessageDialog(null, Messages.getMessage("err_message.common_svn_error"));
             return false;
         } catch (UnsupportedEncodingException uee) {
-            JOptionPane.showMessageDialog(null, Messages.getMessage("err_message.common_incorrect_password"));
+            messageDialog.showKeyMessage("err_message.common_incorrect_password");
+//            JOptionPane.showMessageDialog(null, Messages.getMessage("err_message.common_incorrect_password"));
             return false;
         } catch(ProjectNotFoundException pe) {
-            JOptionPane.showMessageDialog(null, Messages.getMessage("err_message.common_not_open_project"));
+            messageDialog.showKeyMessage("err_message.common_not_open_project");
+//            JOptionPane.showMessageDialog(null, Messages.getMessage("err_message.common_not_open_project"));
             return false;
         } catch (ClassNotFoundException cnfe){
-            JOptionPane.showMessageDialog(null, Messages.getMessage("err_message.common_class_not_found"));
+            messageDialog.showKeyMessage("err_message.common_class_not_found");
+//            JOptionPane.showMessageDialog(null, Messages.getMessage("err_message.common_class_not_found"));
             return false;
         }
         return true;
@@ -194,7 +271,8 @@ public class SVNUtils {
 
     public static boolean chkNotSaveProject(String pjPath) {
         if (pjPath == null || pjPath.equals("no_title")) {
-            JOptionPane.showMessageDialog(null, Messages.getMessage("err_message.common_not_save_project"));
+            messageDialog.showKeyMessage("err_message.common_not_save_project");
+//            JOptionPane.showMessageDialog(null, Messages.getMessage("err_message.common_not_save_project"));
             return true;
         }
         return false;
@@ -258,7 +336,8 @@ public class SVNUtils {
     public static boolean chkLoginError(SVNException se){
         if ((se.getMessage()).matches("^svn: E170001: Authentication required for.*")){
             // ログイン失敗
-            JOptionPane.showMessageDialog(null, Messages.getMessage("err_message.common_login_error"));
+            messageDialog.showKeyMessage("err_message.common_login_error");
+//            JOptionPane.showMessageDialog(null, Messages.getMessage("err_message.common_login_error"));
             return true;
         }
         return false;
@@ -272,7 +351,8 @@ public class SVNUtils {
         try {
             bytes = createCipher(Cipher.ENCRYPT_MODE).doFinal(encriptString.getBytes());
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, e.getLocalizedMessage());
+            messageDialog.showMessage(e.getLocalizedMessage());
+//            JOptionPane.showMessageDialog(null, e.getLocalizedMessage());
             return null;
         }
         return bytes;
@@ -284,7 +364,8 @@ public class SVNUtils {
             byte[] bytes = createCipher(Cipher.DECRYPT_MODE).doFinal(decript);
             str = new String(bytes);
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, e.getLocalizedMessage());
+            messageDialog.showMessage(e.getLocalizedMessage());
+//            JOptionPane.showMessageDialog(null, e.getLocalizedMessage());
             return null;
         }
         return str;
@@ -297,11 +378,14 @@ public class SVNUtils {
             cipher = Cipher.getInstance(CIPHER_TYPE);
             cipher.init(cipherMode, key);
         } catch (InvalidKeyException e) {
-            JOptionPane.showMessageDialog(null, e.getMessage());
+            messageDialog.showMessage(e.getMessage());
+//            JOptionPane.showMessageDialog(null, e.getMessage());
         } catch (NoSuchAlgorithmException e) {
-            JOptionPane.showMessageDialog(null, e.getMessage());
+            messageDialog.showMessage(e.getMessage());
+//            JOptionPane.showMessageDialog(null, e.getMessage());
         } catch (NoSuchPaddingException e) {
-            JOptionPane.showMessageDialog(null, e.getMessage());
+            messageDialog.showMessage(e.getMessage());
+//            JOptionPane.showMessageDialog(null, e.getMessage());
         }
         return cipher;
     }

@@ -16,9 +16,11 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
 import com.change_vision.astah.extension.plugin.svn_prototype.Messages;
+import com.change_vision.astah.extension.plugin.svn_prototype.core.SVNComment;
 
-@SuppressWarnings("serial")
-public class SVNCommitCommentDialog extends KeyDialog {
+public class SVNCommitCommentDialog extends KeyDialog implements SVNComment {
+
+    private static final long serialVersionUID = -5780332918780882297L;
 
     private boolean runCommitFlg = false;
     private JTextArea textArea;
@@ -104,12 +106,15 @@ public class SVNCommitCommentDialog extends KeyDialog {
         if(frame != null) {
             setLocationRelativeTo(frame.getParent());
         }
+        setVisible(true);
     }
 
-    public boolean getRunCommitFlg(){
+    @Override
+    public boolean isCommit(){
         return runCommitFlg;
     }
 
+    @Override
     public String getCommitComment(){
         return textArea.getText();
     }
