@@ -27,8 +27,8 @@ import org.tmatesoft.svn.core.SVNException;
 
 import com.change_vision.astah.extension.plugin.svn_prototype.Messages;
 import com.change_vision.astah.extension.plugin.svn_prototype.exception.SVNNotConfigurationException;
-import com.change_vision.astah.extension.plugin.svn_prototype.exception.SVNPluginException;
 import com.change_vision.astah.extension.plugin.svn_prototype.dialog.KeyDialog;
+import com.change_vision.astah.extension.plugin.svn_prototype.util.ISVNKitUtils;
 import com.change_vision.astah.extension.plugin.svn_prototype.util.SVNPreferences;
 import com.change_vision.astah.extension.plugin.svn_prototype.util.SVNUtils;
 import com.change_vision.jude.api.inf.exception.ProjectNotFoundException;
@@ -58,6 +58,8 @@ public class SVNConfigurationDialog extends KeyDialog {
     private JRadioButton sshRadio;
     private JRadioButton noAuthRadio;
 
+    private JFrame frame;
+
     private Container c;
     private SVNConfigurationDialog parent;
 
@@ -67,19 +69,23 @@ public class SVNConfigurationDialog extends KeyDialog {
 
     private MessageDialog messageDialog;
 
+    private ISVNKitUtils kitUtils;
+
     public SVNConfigurationDialog(JFrame frame) throws SVNException, ProjectNotFoundException, UnsupportedEncodingException, ClassNotFoundException {
         super(frame, true);
+        this.frame = frame;
         this.messageDialog = new MessageDialog();
-        getDialog(frame);
     }
 
-    public SVNConfigurationDialog(JFrame frame, MessageDialog messageDialog) throws SVNException, ProjectNotFoundException, UnsupportedEncodingException, ClassNotFoundException {
-        super(frame, true);
+    public void setMessageDialog(MessageDialog messageDialog) {
         this.messageDialog = messageDialog;
-        getDialog(frame);
     }
 
-    private void getDialog(JFrame frame) throws SVNException, ProjectNotFoundException, UnsupportedEncodingException, ClassNotFoundException {
+    public void setSVNKitUtils(ISVNKitUtils kitUtils) {
+        this.kitUtils = kitUtils;
+    }
+
+    public void getDialog() throws SVNException, ProjectNotFoundException, UnsupportedEncodingException, ClassNotFoundException {
         try {
             int selected = -1;
             String strSelected = null;
@@ -120,7 +126,7 @@ public class SVNConfigurationDialog extends KeyDialog {
 
             // 前回選択した項目を取得
             strSelected = getDefaultString(SVNPreferences.KEY_LOGIN_KIND, preferences);
-            if (!SVNUtils.chkNullString(strSelected)){
+            if (!SVNUtils.isNullString(strSelected)){
                 selected = Integer.parseInt(strSelected);
             }
 
@@ -136,7 +142,7 @@ public class SVNConfigurationDialog extends KeyDialog {
             }
 
             JLabel lblRepository = new JLabel(" " + Messages.getMessage("login_dialog.repository_label") + " ");
-            if (SVNUtils.chkNullString(url)) {
+            if (SVNUtils.isNullString(url)) {
                 messageDialog.showKeyMessage("err_message.config_not_entered_repository");
 //                JOptionPane.showMessageDialog(null, Messages.getMessage("err_message.config_not_entered_repository"));
                 repository = new JTextField(50);
@@ -187,7 +193,7 @@ public class SVNConfigurationDialog extends KeyDialog {
     private JPanel getHeaderPanel(String homePath){
         JPanel headerPanel = new JPanel();
         JLabel lblastah = new JLabel(Messages.getMessage("login_dialog.astah_home_label"));
-        if (SVNUtils.chkNullString(homePath)) {
+        if (SVNUtils.isNullString(homePath)) {
             astah_home = new JTextField(34);
         } else {
             astah_home = new JTextField(homePath, 34);
@@ -201,7 +207,7 @@ public class SVNConfigurationDialog extends KeyDialog {
             public void actionPerformed(ActionEvent e) {
                 JFileChooser chooser = new JFileChooser();
                 chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-                if (!SVNUtils.chkNullString(astah_home.getText())){
+                if (!SVNUtils.isNullString(astah_home.getText())){
                     chooser.setCurrentDirectory(new File(astah_home.getText()));
                 }
 
@@ -240,14 +246,14 @@ public class SVNConfigurationDialog extends KeyDialog {
 
                 // ユーザー、パスワード保存処理
                 try {
-                    if (!SVNUtils.chkNullString(astah_home.getText())) {
+                    if (!SVNUtils.isNullString(astah_home.getText())) {
                         preferences.put(SVNPreferences.KEY_ASTAH_HOME, astah_home.getText());
                     } else {
                         messageDialog.showKeyMessage("err_message.config_not_choice_astah");
 //                        JOptionPane.showMessageDialog(null, Messages.getMessage("err_message.config_not_choice_astah"));
                         return;
                     }
-                    if (!SVNUtils.chkNullString(repository.getText())) {
+                    if (!SVNUtils.isNullString(repository.getText())) {
                         preferences.put(SVNPreferences.KEY_REPOSITORY_URL, repository.getText());
                     } else {
                         messageDialog.showKeyMessage("err_message.config_not_entered_repository");
@@ -260,7 +266,7 @@ public class SVNConfigurationDialog extends KeyDialog {
 
                         if (basicSavePw.isSelected()){
                             password = String.valueOf(basicPassword.getPassword());
-                            if (SVNUtils.chkNullString(password)) {
+                            if (SVNUtils.isNullString(password)) {
                                 messageDialog.showKeyMessage("err_message.config_not_entered_password");
 //                                JOptionPane.showMessageDialog(null, Messages.getMessage("err_message.config_not_entered_password"));
                                 return;
@@ -273,7 +279,7 @@ public class SVNConfigurationDialog extends KeyDialog {
 
                         if (sshSavePw.isSelected()){
                             password = String.valueOf(sshPassword.getPassword());
-                            if (SVNUtils.chkNullString(password)) {
+                            if (SVNUtils.isNullString(password)) {
                                 messageDialog.showKeyMessage("err_message.config_not_entered_password");
 //                                JOptionPane.showMessageDialog(null, Messages.getMessage("err_message.config_not_entered_password"));
                                 return;
@@ -283,7 +289,7 @@ public class SVNConfigurationDialog extends KeyDialog {
                         loginKind = SVNUtils.LOGIN_KIND_SSH;
                         keyFile  = String.valueOf(key_file_path.getText());
 
-                        if (!SVNUtils.chkNullString(keyFile)) {
+                        if (!SVNUtils.isNullString(keyFile)) {
                             preferences.put(SVNPreferences.KEY_KEYFILE_PATH, key_file_path.getText());
                         } else if (sshSavePw.isSelected()) {
                             messageDialog.showKeyMessage("err_message.config_not_entered_keyfile");
@@ -300,7 +306,7 @@ public class SVNConfigurationDialog extends KeyDialog {
                     }
 
                     // ユーザーの保存
-                    if (!SVNUtils.chkNullString(user)) {
+                    if (!SVNUtils.isNullString(user)) {
                         preferences.put(SVNPreferences.KEY_USER_NAME, user);
                     } else {
                         messageDialog.showKeyMessage("err_message.config_not_entered_user");
@@ -309,7 +315,7 @@ public class SVNConfigurationDialog extends KeyDialog {
                     }
 
                     // パスワードの保存
-                    if (!SVNUtils.chkNullString(password)) {
+                    if (!SVNUtils.isNullString(password)) {
                         // パスワード暗号化
                         byte[] pwByte = SVNUtils.encript(password);
                         password = new String(pwByte, SVNUtils.SAVE_PASSWORD_CHARSET);
@@ -344,7 +350,7 @@ public class SVNConfigurationDialog extends KeyDialog {
                 } catch (UnsupportedEncodingException uee) {
                     JOptionPane.showMessageDialog(null, Messages.getMessage("err_message.config_fails_password_encryption"));
                 } catch (SVNException se) {
-                    if (!SVNUtils.chkLoginError(se)){
+                    if (!(new SVNUtils()).isLoginError(se)){
                         // ログインエラー以外のSVN関連エラー
                         JOptionPane.showMessageDialog(null, Messages.getMessage("err_message.common_svn_error"));
                     }
@@ -396,7 +402,7 @@ public class SVNConfigurationDialog extends KeyDialog {
         // SVNユーザー
         String userName = getDefaultString(SVNPreferences.KEY_USER_NAME, preferences);
         JLabel lblUser = new JLabel(Messages.getMessage("login_dialog.user_label"));
-        if (SVNUtils.chkNullString(userName) || selected != SVNUtils.LOGIN_KIND_BASIC) {
+        if (SVNUtils.isNullString(userName) || selected != SVNUtils.LOGIN_KIND_BASIC) {
             basicUser = new JTextField(50);
         } else {
         	basicUser = new JTextField(userName, 50);
@@ -407,7 +413,7 @@ public class SVNConfigurationDialog extends KeyDialog {
         // SVNパスワード
         String pw = getDefaultString(SVNPreferences.KEY_PASSWORD, preferences);
         JLabel lblPassword = new JLabel(Messages.getMessage("login_dialog.password_label"));
-        if (SVNUtils.chkNullString(pw) || selected != SVNUtils.LOGIN_KIND_BASIC) {
+        if (SVNUtils.isNullString(pw) || selected != SVNUtils.LOGIN_KIND_BASIC) {
             basicPassword = new JPasswordField(36);
             // チェックボックスをoffに設定
             basicSavePw = new JCheckBox(Messages.getMessage("login_dialog.save_password_label"), false);
@@ -548,7 +554,7 @@ public class SVNConfigurationDialog extends KeyDialog {
         // SVNユーザー
         String userName = getDefaultString(SVNPreferences.KEY_USER_NAME, preferences);
         JLabel lblUser = new JLabel(Messages.getMessage("login_dialog.user_label"));
-        if (SVNUtils.chkNullString(userName) || selected != SVNUtils.LOGIN_KIND_SSH) {
+        if (SVNUtils.isNullString(userName) || selected != SVNUtils.LOGIN_KIND_SSH) {
             sshUser = new JTextField(50);
         } else {
         	sshUser = new JTextField(userName, 50);
@@ -560,7 +566,7 @@ public class SVNConfigurationDialog extends KeyDialog {
         // SVNパスワード
         String pw = getDefaultString(SVNPreferences.KEY_PASSWORD, preferences);
         JLabel lblPassword = new JLabel(Messages.getMessage("login_dialog.password_label"));
-        if (SVNUtils.chkNullString(pw) || selected != SVNUtils.LOGIN_KIND_SSH) {
+        if (SVNUtils.isNullString(pw) || selected != SVNUtils.LOGIN_KIND_SSH) {
             sshPassword = new JPasswordField(36);
             // チェックボックスをoffに設定
             sshSavePw = new JCheckBox(Messages.getMessage("login_dialog.save_password_label"), false);
@@ -598,7 +604,7 @@ public class SVNConfigurationDialog extends KeyDialog {
         String  key = getDefaultString(SVNPreferences.KEY_KEYFILE_PATH, preferences);
         keyFileButton = new JButton(Messages.getMessage("file"));
         JLabel  lblSsh = new JLabel(Messages.getMessage("login_dialog.keyfile_path_label"));
-        if (SVNUtils.chkNullString(key) || selected != SVNUtils.LOGIN_KIND_SSH) {
+        if (SVNUtils.isNullString(key) || selected != SVNUtils.LOGIN_KIND_SSH) {
             key_file_path = new JTextField(44);
             // キーファイル設定ボタンを無効に設定
             keyFileButton.setEnabled(false);
@@ -660,7 +666,7 @@ public class SVNConfigurationDialog extends KeyDialog {
         // SVNユーザー
         String userName = getDefaultString(SVNPreferences.KEY_USER_NAME, preferences);
         JLabel lblUser = new JLabel(Messages.getMessage("login_dialog.user_label"));
-        if (SVNUtils.chkNullString(userName) || selected != SVNUtils.LOGIN_KIND_NOAUTH) {
+        if (SVNUtils.isNullString(userName) || selected != SVNUtils.LOGIN_KIND_NOAUTH) {
             noAuthUser = new JTextField(50);
         } else {
         	noAuthUser = new JTextField(userName, 50);
@@ -682,9 +688,9 @@ public class SVNConfigurationDialog extends KeyDialog {
             ProjectAccessor projectAccessor = ProjectAccessorFactory.getProjectAccessor();
             String pjPath = projectAccessor.getProjectPath();
 
-            if (!SVNUtils.chkNotSaveProject(pjPath)) {
-                    String fileURL = SVNUtils.getDefaultRepositoryURL(pjPath);
-                    if (!SVNUtils.chkNullString(fileURL)) {
+            if (SVNUtils.isSaveProject(pjPath)) {
+                    String fileURL = kitUtils.getDefaultRepositoryURL(pjPath);
+                    if (!SVNUtils.isNullString(fileURL)) {
                         property = fileURL;
                     }
             } else {

@@ -6,13 +6,10 @@ import java.util.List;
 import java.util.prefs.Preferences;
 
 import com.change_vision.astah.extension.plugin.svn_prototype.Messages;
-import com.change_vision.astah.extension.plugin.svn_prototype.dialog.MessageDialog;
 import com.change_vision.astah.extension.plugin.svn_prototype.exception.SVNPluginException;
 import com.change_vision.astah.extension.plugin.svn_prototype.util.SVNPreferences;
+import com.change_vision.astah.extension.plugin.svn_prototype.util.SVNUtils;
 import com.change_vision.astah.extension.plugin.svn_prototype.util.SvnDiffInputStreamThread;
-//import com.change_vision.jude.api.inf.AstahAPI;
-import com.change_vision.jude.api.inf.project.ProjectAccessor;
-import com.change_vision.jude.api.inf.project.ProjectAccessorFactory;
 
 public class SVNDiffTask {
 
@@ -20,14 +17,12 @@ public class SVNDiffTask {
     private String  newFile;
     private boolean finishFlg;
     private boolean newFileDeleteFlg;
-    private MessageDialog messageDialog;
 
     public SVNDiffTask(String file1, String file2){
         oldFile   = file1;
         newFile   = file2;
         finishFlg = false;
         newFileDeleteFlg = false;
-        messageDialog = new MessageDialog();
     }
 
     public SVNDiffTask(String file1, String file2, boolean newFileDeleteFlg){
@@ -35,26 +30,9 @@ public class SVNDiffTask {
         newFile   = file2;
         finishFlg = false;
         this.newFileDeleteFlg = newFileDeleteFlg;
-        messageDialog = new MessageDialog();
     }
 
-    public SVNDiffTask(String file1, String file2, MessageDialog messageDialog){
-        oldFile   = file1;
-        newFile   = file2;
-        finishFlg = false;
-        newFileDeleteFlg = false;
-        this.messageDialog = messageDialog;
-    }
-
-    public SVNDiffTask(String file1, String file2, boolean newFileDeleteFlg, MessageDialog messageDialog){
-        oldFile   = file1;
-        newFile   = file2;
-        finishFlg = false;
-        this.newFileDeleteFlg = newFileDeleteFlg;
-        this.messageDialog = messageDialog;
-    }
-
-    public List<Integer> doInBackground() throws SVNPluginException {
+    public List<Integer> doInBackground() throws SVNPluginException, ClassNotFoundException {
         try {
             boolean directFlg = false;
             SVNPreferences.getInstace(this.getClass());
@@ -76,17 +54,17 @@ public class SVNDiffTask {
                     if (!commandPath.endsWith(File.separator)){
                         commandPath = commandPath + File.separator;
                     }
-                    String jarPath = getMacAstahPath();
-                	directFlg = true;
-                	diffCommand = new String[]{"java",
-                			                   "-Xms64m",
-                			                   "-Xmx1024m",
-                			                   "-cp",
-                			                   jarPath,
-                			                   "com.change_vision.jude.cmdline.JudeCommandRunner",
-                			                   "-diff",
-                			                   oldFile,
-                			                   newFile};
+                    String jarPath = (new SVNUtils()).getMacAstahPath();
+                    directFlg = true;
+                    diffCommand = new String[]{"java",
+                                               "-Xms64m",
+                                               "-Xmx1024m",
+                                               "-cp",
+                                               jarPath,
+                                               "com.change_vision.jude.cmdline.JudeCommandRunner",
+                                               "-diff",
+                                               oldFile,
+                                               newFile};
                 }
             } else if (os.matches("^Windows.*")) {
                 if (!commandPath.endsWith(File.separator)){
@@ -94,16 +72,16 @@ public class SVNDiffTask {
                 }
 
                 directFlg = true;
-            	diffCommand = new String[]{"java",
-            			                   "-Xms16m",
-            			                   "-Xmx384m",
-            			                   "-Dsun.java2d.noddraw=true",
-            			                   "-cp",
-            			                   commandPath + "astah-pro.jar",
-            			                   "com.change_vision.jude.cmdline.JudeCommandRunner",
-            			                   "-diff",
-            			                   oldFile,
-            			                   newFile};
+                diffCommand = new String[]{"java",
+                                           "-Xms16m",
+                                           "-Xmx384m",
+                                           "-Dsun.java2d.noddraw=true",
+                                           "-cp",
+                                           commandPath + "astah-pro.jar",
+                                           "com.change_vision.jude.cmdline.JudeCommandRunner",
+                                           "-diff",
+                                           oldFile,
+                                           newFile};
             }
 
             if (!directFlg){
@@ -144,18 +122,14 @@ public class SVNDiffTask {
             pis.join();
             pes.join();
 
-//            setProgress(100);
-
             p.destroy();
             p = null;
             r.gc();
             finishFlg = true;
         } catch(IOException ie) {
             throw new SVNPluginException(Messages.getMessage("err_message.common_exception_from_commandline_tool"), ie);
-//            JOptionPane.showMessageDialog(null, Messages.getMessage("err_message.common_exception_from_commandline_tool"));
         } catch(InterruptedException ine) {
             throw new SVNPluginException(Messages.getMessage("err_message.common_exception_from_commandline_tool"), ine);
-//            JOptionPane.showMessageDialog(null, Messages.getMessage("err_message.common_exception_from_commandline_tool"));
         }
         return null;
     }
@@ -174,47 +148,5 @@ public class SVNDiffTask {
 
     public void resetFinishFlg() {
         finishFlg = false;
-    }
-
-    public String getMacAstahPath() throws SVNPluginException {
-//        AstahAPI aapi = null;
-        String path = null;
-        String filePath = null;
-
-        try {
-//            aapi = AstahAPI.getAstahAPI();
-
-//            ProjectAccessor prjAccessor = aapi.getProjectAccessor();
-            ProjectAccessor prjAccessor = ProjectAccessorFactory.getProjectAccessor();
-            path = prjAccessor.getAstahInstallPath();
-
-            // astahのバージョンを取得
-            if (!path.endsWith(File.separator)){
-                path = path + File.separator;
-            }
-
-            filePath = path + "astah professional.app/Contents/Resources/Java/astah-pro.jar";
-            if (!astahExists(filePath)) {
-                filePath = path + "astah professional.app/Contents/Java/astah-pro.jar";
-                if (!astahExists(filePath)) {
-                    messageDialog.showKeyMessage("err_message.common_file_not_found");
-//                    JOptionPane.showMessageDialog(null, Messages.getMessage("err_message.common_file_not_found"));
-                    return null;
-                }
-            }
-        } catch (ClassNotFoundException e) {
-            throw new SVNPluginException(Messages.getMessage("err_message.common_class_not_found"), e);
-//            JOptionPane.showMessageDialog(null, Messages.getMessage("err_message.common_class_not_found"));
-//            return null;
-        }
-        return filePath;
-    }
-
-    public boolean astahExists(String path) {
-        File file = new File(path);
-        if (file.exists()) {
-            return true; 
-        }
-        return false;
     }
 }

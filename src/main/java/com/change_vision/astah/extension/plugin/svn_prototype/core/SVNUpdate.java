@@ -3,26 +3,12 @@ package com.change_vision.astah.extension.plugin.svn_prototype.core;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.channels.FileChannel;
 import java.util.prefs.Preferences;
 
 import javax.swing.JFrame;
 
-import org.tmatesoft.svn.core.SVNDepth;
-import org.tmatesoft.svn.core.SVNDirEntry;
 import org.tmatesoft.svn.core.SVNException;
-import org.tmatesoft.svn.core.internal.io.dav.DAVRepositoryFactory;
-import org.tmatesoft.svn.core.internal.io.fs.FSRepositoryFactory;
-import org.tmatesoft.svn.core.internal.io.svn.SVNRepositoryFactoryImpl;
-import org.tmatesoft.svn.core.internal.wc.DefaultSVNOptions;
-import org.tmatesoft.svn.core.wc.SVNClientManager;
-import org.tmatesoft.svn.core.wc.SVNRevision;
-import org.tmatesoft.svn.core.wc.SVNUpdateClient;
-import org.tmatesoft.svn.core.wc.SVNWCUtil;
 
 import com.change_vision.astah.extension.plugin.svn_prototype.Messages;
 import com.change_vision.astah.extension.plugin.svn_prototype.dialog.MessageDialog;
@@ -33,7 +19,8 @@ import com.change_vision.astah.extension.plugin.svn_prototype.exception.SVNNotCo
 import com.change_vision.astah.extension.plugin.svn_prototype.exception.SVNPluginException;
 import com.change_vision.astah.extension.plugin.svn_prototype.ui.swing.SVNDiffSwingWorker;
 import com.change_vision.astah.extension.plugin.svn_prototype.ui.swing.SVNMergeSwingWorker;
-import com.change_vision.astah.extension.plugin.svn_prototype.util.SVNConflictResolverHandler;
+import com.change_vision.astah.extension.plugin.svn_prototype.util.ISVNKitUtils;
+import com.change_vision.astah.extension.plugin.svn_prototype.util.SVNKitUtils;
 import com.change_vision.astah.extension.plugin.svn_prototype.util.SVNPreferences;
 import com.change_vision.astah.extension.plugin.svn_prototype.util.SVNUtils;
 import com.change_vision.jude.api.inf.exception.LicenseNotFoundException;
@@ -48,10 +35,16 @@ public class SVNUpdate {
 
     private static MessageDialog messageDialog;
     private SVNUtils utils;
+    private ISVNKitUtils kitUtils;
 
     public SVNUpdate() {
         SVNUpdate.messageDialog = new MessageDialog();
         utils = new SVNUtils();
+        kitUtils = new SVNKitUtils();
+    }
+
+    public void setKitUtils(ISVNKitUtils kitUtils) {
+        this.kitUtils = kitUtils;
     }
 
     public void setUtils(SVNUtils utils) {
@@ -63,133 +56,98 @@ public class SVNUpdate {
     }
 
     public Object execute() throws UnExpectedException, SVNPluginException,
-            SVNNotConfigurationException {
+                                   SVNNotConfigurationException, ClassNotFoundException,
+                                   ProjectNotFoundException, LicenseNotFoundException,
+                                   NonCompatibleException, ProjectLockedException {
         try {
             // 保存してあるSubversionログイン情報取得
             utils.getPreferencesInfo(Messages.getMessage("info_message.update_cancel"));
+            kitUtils.setSVNUtils(utils);
 
             // 開いているプロジェクトのパスを取得
             ProjectAccessor projectAccessor = ProjectAccessorFactory.getProjectAccessor();
-            String pjPath = projectAccessor.getProjectPath();
-
-            if (SVNUtils.chkNotSaveProject(pjPath)) {
-                return null;
-            }
-
-            if (SVNUtils.chkEditingProject()) {
-                messageDialog.showKeyMessage("confirm_save_dialog.message");
-                // JOptionPane.showMessageDialog(null,
-                // Messages.getMessage("confirm_save_dialog.message"));
-                return null;
-            }
+            String pjPath = utils.getOpenProjectPath(projectAccessor);
 
             // SVNKitの初期化
-            initializeSVNKit();
+            kitUtils.initialize();
 
             projectAccessor.close();
-            SVNClientManager scm = getSVNClientManager();
-            // if (SVNUtils.chkNullString(utils.getPassword())){
-            // scm = SVNClientManager.newInstance(SVNWCUtil.createDefaultOptions(true),
-            // utils.getAuthManager());
-            // } else {
-            // scm = SVNClientManager.newInstance(SVNWCUtil.createDefaultOptions(true),
-            // utils.getUser(), utils.getPassword());
-            // }
-            if (svnUpdateMerge(pjPath, scm)) {
+
+            if (svnUpdateMerge(pjPath)) {
                 // プロジェクトを開き直す
                 projectAccessor.open(pjPath);
 
                 messageDialog.showKeyMessage("info_message.update_complete");
-                // JOptionPane.showMessageDialog(null,
-                // Messages.getMessage("info_message.update_complete"));
             }
-        } catch (ProjectLockedException pe) {
-            throw new SVNPluginException(Messages.getMessage("err_message.common_lock_project"), pe);
-            // JOptionPane.showMessageDialog(null,
-            // Messages.getMessage("err_message.common_lock_project"));
-        } catch (ClassNotFoundException cfe) {
-            throw new SVNPluginException(Messages.getMessage("err_message.common_class_not_found"),
-                    cfe);
-            // JOptionPane.showMessageDialog(null,
-            // Messages.getMessage("err_message.common_class_not_found"));
-        } catch (ProjectNotFoundException pnfe) {
-            throw new SVNPluginException(
-                    Messages.getMessage("err_message.common_not_open_project"), pnfe);
-            // JOptionPane.showMessageDialog(null,
-            // Messages.getMessage("err_message.common_not_open_project"));
+//        } catch (ProjectLockedException pe) {
+//            throw new SVNPluginException(Messages.getMessage("err_message.common_lock_project"), pe);
+//        } catch (ClassNotFoundException cfe) {
+//            throw new SVNPluginException(Messages.getMessage("err_message.common_class_not_found"), cfe);
+//        } catch (ProjectNotFoundException pnfe) {
+//            throw new SVNPluginException(
+//                    Messages.getMessage("err_message.common_not_open_project"), pnfe);
         } catch (IOException ie) {
             throw new SVNPluginException(Messages.getMessage("err_message.common_io_error"), ie);
-            // JOptionPane.showMessageDialog(null,
-            // Messages.getMessage("err_message.common_io_error"));
-        } catch (NonCompatibleException nce) {
-            throw new SVNPluginException(Messages.getMessage("err_message.common_non_compatible"),
-                    nce);
-            // JOptionPane.showMessageDialog(null,
-            // Messages.getMessage("err_message.common_non_compatible"));
-        } catch (LicenseNotFoundException lnfe) {
-            throw new SVNPluginException(
-                    Messages.getMessage("err_message.common_license_not_found"), lnfe);
-            // JOptionPane.showMessageDialog(null,
-            // Messages.getMessage("err_message.common_license_not_found"));
+//        } catch (NonCompatibleException nce) {
+//            throw new SVNPluginException(Messages.getMessage("err_message.common_non_compatible"),
+//                    nce);
+//        } catch (LicenseNotFoundException lnfe) {
+//            throw new SVNPluginException(
+//                    Messages.getMessage("err_message.common_license_not_found"), lnfe);
         }
 
         return null;
     }
-
-    public void initializeSVNKit() {
-        // SVNKitの初期化
-        DAVRepositoryFactory.setup();
-        SVNRepositoryFactoryImpl.setup();
-        FSRepositoryFactory.setup();
-    }
-
-    public boolean doUpdate(String path) throws SVNException, SVNConflictException {
-        return doUpdate(utils.getLatestRevision(), path);
-    }
-
-    public boolean doUpdate(Long revision, String path) throws SVNException,
-            SVNConflictException {
-//        SVNClientManager scm = getSVNClientManager();
+//
+//    public boolean doUpdate(String path) throws SVNException, SVNConflictException {
+//        return doUpdate(utils.getLatestRevision(), path);
+//    }
+//
+//    public boolean doUpdate(Long revision, String path) throws SVNException,
+//            SVNConflictException {
+////        SVNClientManager scm = getSVNClientManager();
+////        SVNUpdateClient client = scm.getUpdateClient();
+////
+//        SVNConflictResolverHandler handler = new SVNConflictResolverHandler(null, path);
+////        DefaultSVNOptions options = (DefaultSVNOptions) client.getOptions();
+////        options.setConflictHandler(handler);
+//        SVNUpdateClient client = getUpdateClient(handler);
+//
+//        try {
+//            // Update処理
+//            client.doUpdate(new File(path), SVNRevision.create(revision), SVNDepth.INFINITY, true, true);
+//            return true;
+//        } catch (SVNException e) {
+//            if (handler.getMergeFlg()) {
+//                throw new SVNConflictException();
+//            }
+//            throw e;
+//        }
+//    }
+//
+//    public SVNUpdateClient getUpdateClient(SVNConflictResolverHandler handler) {
+//        SVNClientManager scm = kitUtils.getSVNClientManager();
 //        SVNUpdateClient client = scm.getUpdateClient();
 //
-        SVNConflictResolverHandler handler = new SVNConflictResolverHandler(null, path);
 //        DefaultSVNOptions options = (DefaultSVNOptions) client.getOptions();
+////        SVNConflictResolverHandler handler = new SVNConflictResolverHandler(null, path);
 //        options.setConflictHandler(handler);
-        SVNUpdateClient client = getUpdateClient(handler);
+//
+//        return client;
+//    }
 
-        try {
-            // Update処理
-            client.doUpdate(new File(path), SVNRevision.create(revision), SVNDepth.INFINITY, true, true);
-            return true;
-        } catch (SVNException e) {
-            if (handler.getMergeFlg()) {
-                throw new SVNConflictException();
-            }
-            throw e;
-        }
-    }
-
-    public SVNUpdateClient getUpdateClient(SVNConflictResolverHandler handler) {
-        SVNClientManager scm = getSVNClientManager();
-        SVNUpdateClient client = scm.getUpdateClient();
-
-        DefaultSVNOptions options = (DefaultSVNOptions) client.getOptions();
-//        SVNConflictResolverHandler handler = new SVNConflictResolverHandler(null, path);
-        options.setConflictHandler(handler);
-
-        return client;
-    }
-
-    public boolean svnUpdateMerge(String pjPath, SVNClientManager scm) throws SVNPluginException {
-        String errFile = "";
+    public boolean svnUpdateMerge(String pjPath) throws SVNPluginException, LicenseNotFoundException,
+                                                        ProjectNotFoundException, NonCompatibleException,
+                                                        ClassNotFoundException, ProjectLockedException {
+//        String errFile = "";
         ProjectAccessor projectAccessor = null;
         try {
-            JFrame parent = (SVNUtils.getViewManager()).getMainFrame();
+            JFrame parent = (utils.getViewManager()).getMainFrame();
             projectAccessor = ProjectAccessorFactory.getProjectAccessor();
+
             // 開いているプロジェクトのパス、ファイル名を取得
-            int markIndex = pjPath.lastIndexOf(File.separator);
-            String fileName = pjPath.substring(markIndex + 1);
-            String filePath = pjPath.substring(0, markIndex + 1);
+            String fileName = SVNUtils.getFileName(pjPath);
+            String filePath = SVNUtils.getFilePath(pjPath);
             String workFile = filePath + "work." + fileName;
 
             // 対象プロジェクトに対する最新リビジョンを取得
@@ -197,8 +155,6 @@ public class SVNUpdate {
                 // プロジェクトを開き直す
                 projectAccessor.open(pjPath);
                 messageDialog.showKeyMessage("err_message.common_not_commit");
-                // JOptionPane.showMessageDialog(null,
-                // Messages.getMessage("err_message.common_not_commit"));
                 return false;
             }
 
@@ -210,26 +166,28 @@ public class SVNUpdate {
             }
 
             // プロジェクトのコピーを作成
-            errFile = pjPath;
-            FileInputStream inputStream = new FileInputStream(pjPath);
-            errFile = workFile;
-            FileOutputStream outputStream = new FileOutputStream(workFile);
-            errFile = "";
-            FileChannel srcChannel = inputStream.getChannel();
-            FileChannel destChannel = outputStream.getChannel();
-            srcChannel.transferTo(0, srcChannel.size(), destChannel);
-            inputStream.close();
-            outputStream.close();
+            utils.copyFile(pjPath, workFile);
+//            errFile = pjPath;
+//            FileInputStream inputStream = new FileInputStream(pjPath);
+//            errFile = workFile;
+//            FileOutputStream outputStream = new FileOutputStream(workFile);
+//            errFile = "";
+//            FileChannel srcChannel = inputStream.getChannel();
+//            FileChannel destChannel = outputStream.getChannel();
+//            srcChannel.transferTo(0, srcChannel.size(), destChannel);
+//            inputStream.close();
+//            outputStream.close();
 
             // 更新処理実施
             try {
-                doUpdate(pjPath);
+//                doUpdate(pjPath);
+                kitUtils.doUpdate(pjPath);
             } catch (SVNConflictException e) {
                 // 競合が発生した場合の処理
 
                 // 競合時に発生した「～.asta.r…」ファイルのうち、最新リビジョンの方に拡張子「.asta」をつける
                 String newFileName = pjPath + ".r" + revision + ".asta";
-                fileRenameAction(pjPath + ".r" + revision, newFileName);
+                utils.renameFile(pjPath + ".r" + revision, newFileName);
 
                 final SVNProgressDialog diffDialog = new SVNProgressDialog(parent,
                         Messages.getMessage("progress_diff_title"),
@@ -263,8 +221,7 @@ public class SVNUpdate {
                         Messages.getMessage("progress_merge_title"),
                         Messages.getMessage("progress_merge_message"));
 
-                SVNMergeSwingWorker mergeTask = new SVNMergeSwingWorker(pjPath, scm.getWCClient(),
-                        projectAccessor);
+                SVNMergeSwingWorker mergeTask = new SVNMergeSwingWorker(pjPath, kitUtils, projectAccessor);
                 mergeTask.setLatestRevision(revision);
                 mergeTask.setSVNInfo(utils);
 
@@ -314,15 +271,11 @@ public class SVNUpdate {
                     mergeDialog.setMessage(Messages.getMessage("progress_merge_cancel_message"));
                     mergeDialog.setVisible(true);
                     messageDialog.showKeyMessage("info_message.update_cancel");
-                    // JOptionPane.showMessageDialog(null,
-                    // Messages.getMessage("info_message.update_cancel"));
                     return false;
                 }
 
                 if (mergeTask.getSelected() == SVNSelectMergeDialog.NO_MERGE) {
                     messageDialog.showKeyMessage("info_message.update_cancel");
-                    // JOptionPane.showMessageDialog(null,
-                    // Messages.getMessage("info_message.update_cancel"));
                     return false;
                 }
                 // マージを行ったのでtrueを返す
@@ -332,140 +285,60 @@ public class SVNUpdate {
             File delFile = new File(workFile);
             delFile.delete();
             return true;
-        } catch (ClassNotFoundException cfe) {
-            throw new SVNPluginException(Messages.getMessage("err_message.common_class_not_found"),
-                    cfe);
-            // JOptionPane.showMessageDialog(null,
-            // Messages.getMessage("err_message.common_class_not_found"));
-            // return false;
-        } catch (FileNotFoundException fnfe) {
-            throw new SVNPluginException(Messages.getMessage("err_message.common_file_not_found")
-                    + errFile, fnfe);
-            // JOptionPane.showMessageDialog(null,
-            // Messages.getMessage("err_message.common_file_not_found") + errFile);
-            // return false;
+//        } catch (ClassNotFoundException cfe) {
+//            throw new SVNPluginException(Messages.getMessage("err_message.common_class_not_found"), cfe);
+//        } catch (FileNotFoundException fnfe) {
+//            throw new SVNPluginException(Messages.getMessage("err_message.common_file_not_found")
+//                    + errFile, fnfe);
+//            // JOptionPane.showMessageDialog(null,
+//            // Messages.getMessage("err_message.common_file_not_found") + errFile);
+//            // return false;
         } catch (IOException ie) {
             throw new SVNPluginException(Messages.getMessage("err_message.common_io_error"), ie);
-            // JOptionPane.showMessageDialog(null,
-            // Messages.getMessage("err_message.common_io_error"));
-            // return false;
         } catch (SVNException svne) {
-            if (SVNUtils.chkLoginError(svne)) {
+            if (utils.isLoginError(svne)) {
                 try {
                     // プロジェクトを開き直す
                     if (projectAccessor != null) {
                         projectAccessor.open(pjPath);
                     }
-                } catch (ClassNotFoundException cfe) {
-                    throw new SVNPluginException(
-                            Messages.getMessage("err_message.common_class_not_found"), cfe);
-                    // JOptionPane.showMessageDialog(null,
-                    // Messages.getMessage("err_message.common_class_not_found"));
+//                } catch (ClassNotFoundException cfe) {
+//                    throw new SVNPluginException(Messages.getMessage("err_message.common_class_not_found"), cfe);
                 } catch (IOException ie) {
-                    throw new SVNPluginException(
-                            Messages.getMessage("err_message.common_io_error"), ie);
-                    // JOptionPane.showMessageDialog(null,
-                    // Messages.getMessage("err_message.common_io_error"));
-                } catch (ProjectLockedException ple) {
-                    throw new SVNPluginException(
-                            Messages.getMessage("err_message.common_not_open_project"), ple);
-                    // JOptionPane.showMessageDialog(null,
-                    // Messages.getMessage("err_message.common_not_open_project"));
-                } catch (NonCompatibleException nce) {
-                    throw new SVNPluginException(
-                            Messages.getMessage("err_message.common_non_compatible"), nce);
-                    // JOptionPane.showMessageDialog(null,
-                    // Messages.getMessage("err_message.common_non_compatible"));
-                } catch (ProjectNotFoundException pnfe) {
-                    throw new SVNPluginException(
-                            Messages.getMessage("err_message.common_not_open_project"), pnfe);
-                    // JOptionPane.showMessageDialog(null,
-                    // Messages.getMessage("err_message.common_not_open_project"));
-                } catch (LicenseNotFoundException lnfe) {
-                    throw new SVNPluginException(
-                            Messages.getMessage("err_message.common_license_not_found"), lnfe);
-                    // JOptionPane.showMessageDialog(null,
-                    // Messages.getMessage("err_message.common_license_not_found"));
+                    throw new SVNPluginException(Messages.getMessage("err_message.common_io_error"), ie);
+//                } catch (ProjectLockedException ple) {
+//                    throw new SVNPluginException(Messages.getMessage("err_message.common_not_open_project"), ple);
+//                } catch (NonCompatibleException nce) {
+//                    throw new SVNPluginException(
+//                            Messages.getMessage("err_message.common_non_compatible"), nce);
+//                } catch (ProjectNotFoundException pnfe) {
+//                    throw new SVNPluginException(Messages.getMessage("err_message.common_not_open_project"), pnfe);
+//                } catch (LicenseNotFoundException lnfe) {
+//                    throw new SVNPluginException(Messages.getMessage("err_message.common_license_not_found"), lnfe);
                 }
             } else {
-                throw new SVNPluginException(Messages.getMessage("err_message.common_svn_error"),
-                        svne);
-                // JOptionPane.showMessageDialog(null,
-                // Messages.getMessage("err_message.common_svn_error"));
+                throw new SVNPluginException(Messages.getMessage("err_message.common_svn_error"), svne);
             }
             return false;
-        } catch (ProjectLockedException ple) {
-            throw new SVNPluginException(
-                    Messages.getMessage("err_message.common_not_open_project"), ple);
-            // JOptionPane.showMessageDialog(null,
-            // Messages.getMessage("err_message.common_not_open_project"));
-            // return false;
-        } catch (NonCompatibleException nce) {
-            throw new SVNPluginException(Messages.getMessage("err_message.common_non_compatible"),
-                    nce);
-            // JOptionPane.showMessageDialog(null,
-            // Messages.getMessage("err_message.common_non_compatible"));
-            // return false;
-        } catch (ProjectNotFoundException pnfe) {
-            throw new SVNPluginException(
-                    Messages.getMessage("err_message.common_not_open_project"), pnfe);
-            // JOptionPane.showMessageDialog(null,
-            // Messages.getMessage("err_message.common_not_open_project"));
-            // return false;
-        } catch (LicenseNotFoundException lnfe) {
-            throw new SVNPluginException(
-                    Messages.getMessage("err_message.common_license_not_found"), lnfe);
-            // JOptionPane.showMessageDialog(null,
-            // Messages.getMessage("err_message.common_license_not_found"));
-            // return false;
+//        } catch (ProjectLockedException ple) {
+//            throw new SVNPluginException(Messages.getMessage("err_message.common_not_open_project"), ple);
+//        } catch (NonCompatibleException nce) {
+//            throw new SVNPluginException(Messages.getMessage("err_message.common_non_compatible"), nce);
+//        } catch (ProjectNotFoundException pnfe) {
+//            throw new SVNPluginException(Messages.getMessage("err_message.common_not_open_project"), pnfe);
+//        } catch (LicenseNotFoundException lnfe) {
+//            throw new SVNPluginException(Messages.getMessage("err_message.common_license_not_found"), lnfe);
         }
     }
-
-    public static boolean fileRenameAction(String fromFile, String toFile) {
-        File file1 = new File(fromFile);
-        File file2 = new File(toFile);
-        if (!file1.renameTo(file2)) {
-            // ファイル名変更失敗
-            return false;
-        }
-        return true;
-    }
-
-    public String getProjectPath() throws SVNPluginException {
-        // 開いているプロジェクトのパスを取得
-        String pjPath;
-        ProjectAccessor projectAccessor;
-        try {
-            projectAccessor = ProjectAccessorFactory.getProjectAccessor();
-            pjPath = projectAccessor.getProjectPath();
-
-            if (SVNUtils.chkNotSaveProject(pjPath)) {
-                return null;
-            }
-        } catch (ClassNotFoundException e) {
-            throw new SVNPluginException(Messages.getMessage("err_message.common_class_not_found"),
-                    e);
-            // JOptionPane.showMessageDialog(null,
-            // Messages.getMessage("err_message.common_class_not_found"));
-            // return null;
-        } catch (ProjectNotFoundException e) {
-            throw new SVNPluginException(
-                    Messages.getMessage("err_message.common_not_open_project"), e);
-            // JOptionPane.showMessageDialog(null,
-            // Messages.getMessage("err_message.common_not_open_project"));
-            // return null;
-        }
-        return pjPath;
-    }
-
-    public SVNClientManager getSVNClientManager() {
-        if (SVNUtils.chkNullString(utils.getPassword())) {
-            return SVNClientManager.newInstance(SVNWCUtil.createDefaultOptions(true),
-                    utils.getAuthManager());
-        } else {
-            return SVNClientManager.newInstance(SVNWCUtil.createDefaultOptions(true),
-                    utils.getUser(), utils.getPassword());
-        }
-    }
-
+//
+//    public SVNClientManager getSVNClientManager() {
+//        if (SVNUtils.isNullString(utils.getPassword())) {
+//            return SVNClientManager.newInstance(SVNWCUtil.createDefaultOptions(true),
+//                    utils.getAuthManager());
+//        } else {
+//            return SVNClientManager.newInstance(SVNWCUtil.createDefaultOptions(true),
+//                    utils.getUser(), utils.getPassword());
+//        }
+//    }
+//
 }

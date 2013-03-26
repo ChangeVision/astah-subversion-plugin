@@ -6,14 +6,15 @@ import java.io.IOException;
 
 import org.junit.Test;
 import org.tmatesoft.svn.core.SVNException;
-import org.tmatesoft.svn.core.wc.SVNWCClient;
 
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
 import static org.mockito.Mockito.mock;
 
 import com.change_vision.astah.extension.plugin.svn_prototype.exception.SVNConflictException;
+import com.change_vision.astah.extension.plugin.svn_prototype.exception.SVNPluginException;
 import com.change_vision.astah.extension.plugin.svn_prototype.task.SVNMergeTask;
+import com.change_vision.astah.extension.plugin.svn_prototype.util.ISVNKitUtils;
 import com.change_vision.jude.api.inf.exception.InvalidEditingException;
 import com.change_vision.jude.api.inf.exception.LicenseNotFoundException;
 import com.change_vision.jude.api.inf.exception.NonCompatibleException;
@@ -51,7 +52,7 @@ public class SVNMergeTaskTest {
     @Test
     public void testDoInBackground() {
         try {
-            SVNMergeTask smt = new SVNMergeTask(OLD_FILE_PATH, mock(SVNWCClient.class), mock(ProjectAccessor.class));
+            SVNMergeTask smt = new SVNMergeTask(OLD_FILE_PATH, mock(ISVNKitUtils.class), mock(ProjectAccessor.class));
             try {
                 smt.doInBackground();
             } catch (InvalidEditingException e) {
@@ -78,6 +79,9 @@ public class SVNMergeTaskTest {
             } catch (SVNConflictException e) {
                 e.printStackTrace();
                 fail("throw SVNConflictException!");
+            } catch (SVNPluginException e) {
+                e.printStackTrace();
+                fail("throw SVNPluginException!");
             }
         } catch (SVNException e) {
             e.printStackTrace();

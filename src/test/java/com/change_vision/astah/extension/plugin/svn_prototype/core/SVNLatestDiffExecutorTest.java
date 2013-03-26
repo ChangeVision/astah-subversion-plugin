@@ -7,17 +7,19 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.tmatesoft.svn.core.wc.SVNWCClient;
+import static org.mockito.Mockito.mock;
 
 import com.change_vision.astah.extension.plugin.svn_prototype.exception.SVNNotCommitException;
 import com.change_vision.astah.extension.plugin.svn_prototype.exception.SVNNotConfigurationException;
 import com.change_vision.astah.extension.plugin.svn_prototype.exception.SVNPluginException;
+import com.change_vision.astah.extension.plugin.svn_prototype.util.ISVNKitUtils;
 import com.change_vision.astah.extension.plugin.svn_prototype.util.SVNUtils;
 import com.change_vision.jude.api.inf.exception.LicenseNotFoundException;
 import com.change_vision.jude.api.inf.exception.NonCompatibleException;
@@ -29,7 +31,9 @@ import com.change_vision.jude.api.inf.project.ProjectAccessorFactory;
 public class SVNLatestDiffExecutorTest {
     private final String SVN_FILE_PATH = "src/test/resources/sample.asta";
 
-    ProjectAccessor pjAccessor;
+    private ProjectAccessor pjAccessor;
+    private SVNUtils utils;
+    private ISVNKitUtils kitUtils;
 
     @Before
     public void before() {
@@ -37,72 +41,38 @@ public class SVNLatestDiffExecutorTest {
         if (pjAccessor == null) {
             fail("ProjectAccessor = null!");
         }
+        utils = new SVNUtils();
+        kitUtils = mock(ISVNKitUtils.class);
     }
 
+//    @Test
+//    public void testGetSVNWCClient1() {
+//        SVNLatestDiffExecutor lda = new SVNLatestDiffExecutor(pjAccessor, null);
+//        try {
+//            lda.initializeSVN();
+//        } catch (SVNNotConfigurationException e) {
+//            e.printStackTrace();
+//            fail("throw SVNNotConfigurationException!");
+//        } catch (SVNPluginException e) {
+//            e.printStackTrace();
+//            fail("throw SVNPluginException!");
+//        }
+//        SVNWCClient swc = lda.getSVNWCClient();
+//        assertThat(swc, is(notNullValue()));
+//    }
+//
+//    @Test
+//    public void testGetSVNWCClient2() {
+//        SVNLatestDiffExecutor lda = new SVNLatestDiffExecutor(pjAccessor, null);
+//        SVNWCClient swc = lda.getSVNWCClient();
+//        assertThat(swc, is(nullValue()));
+//    }
+//
     @Test
-    public void testGetProjectPath() {
-        SVNLatestDiffExecutor lda = new SVNLatestDiffExecutor(pjAccessor);
-        String pjPath;
-        try {
-            pjPath = lda.getProjectPath();
-            assertThat(pjPath, is(notNullValue()));
-        } catch (SVNPluginException e) {
-            e.printStackTrace();
-            fail("throw SVNPluginException!");
-        }
-    }
-
-    @Test
-    public void testGetFileName() {
-        SVNLatestDiffExecutor lda = new SVNLatestDiffExecutor(pjAccessor);
-        String fileName = lda.getFileName("C:\\tmp\\test.asta");
-        assertThat(fileName, is("test.asta"));
-    }
-
-    @Test
-    public void testGetFilePath() {
-        SVNLatestDiffExecutor lda = new SVNLatestDiffExecutor(pjAccessor);
-        String filePath = lda.getFilePath("C:\\tmp\\test.asta");
-        assertThat(filePath, is("C:\\tmp\\"));
-    }
-
-    @Test
-    @Ignore("getSVNUtils delete")
-    public void testInitializeSVN() {
-        SVNLatestDiffExecutor lda = new SVNLatestDiffExecutor(pjAccessor);
-//        SVNUtils su = lda.initializeSVN();
-//        assertThat(su, is(notNullValue()));
-        pjAccessor.close();
-    }
-
-    @Test
-    public void testGetSVNWCClient1() {
-        SVNLatestDiffExecutor lda = new SVNLatestDiffExecutor(pjAccessor);
-        try {
-            lda.initializeSVN();
-        } catch (SVNNotConfigurationException e) {
-            e.printStackTrace();
-            fail("throw SVNNotConfigurationException!");
-        } catch (SVNPluginException e) {
-            e.printStackTrace();
-            fail("throw SVNPluginException!");
-        }
-        SVNWCClient swc = lda.getSVNWCClient();
-        assertThat(swc, is(notNullValue()));
-    }
-
-    @Test
-    public void testGetSVNWCClient2() {
-        SVNLatestDiffExecutor lda = new SVNLatestDiffExecutor(pjAccessor);
-        SVNWCClient swc = lda.getSVNWCClient();
-        assertThat(swc, is(nullValue()));
-    }
-
-    @Test
-    @Ignore("�����|�W�g�������Ȃ��Ƃ����Ȃ��̂ŃX�L�b�v")
+    @Ignore("実リポジトリを作らないといけないのでスキップ")
     public void testGetLatestFile1() {
-        SVNLatestDiffExecutor lda = new SVNLatestDiffExecutor(pjAccessor);
-        String fileName = lda.getFileName(SVN_FILE_PATH);
+        SVNLatestDiffExecutor lda = new SVNLatestDiffExecutor(pjAccessor, null);
+        String fileName = SVNUtils.getFileName(SVN_FILE_PATH);
         try {
             lda.initializeSVN();
         } catch (SVNNotConfigurationException e) {
@@ -112,11 +82,9 @@ public class SVNLatestDiffExecutorTest {
             e.printStackTrace();
             fail("throw SVNPluginException!");
         }
-        SVNWCClient swc = lda.getSVNWCClient();
-
         String baseFile;
         try {
-            baseFile = lda.getLatestFile(lda.getFilePath(SVN_FILE_PATH), fileName, swc);
+            baseFile = kitUtils.getLatestFile(SVNUtils.getFilePath(SVN_FILE_PATH), fileName);
             assertThat(baseFile, is(notNullValue()));
         } catch (SVNPluginException e) {
             e.printStackTrace();
@@ -124,16 +92,17 @@ public class SVNLatestDiffExecutorTest {
         } catch (SVNNotCommitException e) {
             e.printStackTrace();
             fail("throw SVNNotCommitException!");
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            fail("throw FileNotFoundException!");
         }
     }
 
     @Test
     public void testGetLatestFile2() {
-        SVNLatestDiffExecutor lda = new SVNLatestDiffExecutor(pjAccessor);
-
         String baseFile;
         try {
-            baseFile = lda.getLatestFile(null, null, null);
+            baseFile = kitUtils.getLatestFile(null, null);
             assertThat(baseFile, is(nullValue()));
         } catch (SVNPluginException e) {
             e.printStackTrace();
@@ -141,6 +110,9 @@ public class SVNLatestDiffExecutorTest {
         } catch (SVNNotCommitException e) {
             e.printStackTrace();
             fail("throw SVNNotCommitException!");
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            fail("throw FileNotFoundException!");
         }
     }
 
@@ -153,23 +125,22 @@ public class SVNLatestDiffExecutorTest {
             return;
         }
 
-        if (SVNUtils.getViewManager() == null) {
+        if (utils.getViewManager() == null) {
             fail("viewManager = null!");
             return;
-        } else if ((SVNUtils.getViewManager()).getMainFrame() == null) {
+        } else if ((utils.getViewManager()).getMainFrame() == null) {
             fail("mainFrame = null!");
             return;
         }
 
-        SVNLatestDiffExecutor lda = new SVNLatestDiffExecutor(pjAccessor);
+        SVNLatestDiffExecutor lda = new SVNLatestDiffExecutor(pjAccessor, null);
         try {
-            String pjPath = lda.getProjectPath();
+            String pjPath = utils.getProjectPath(ProjectAccessorFactory.getProjectAccessor());
 
-            String fileName = lda.getFileName(pjPath);
-            String filePath = lda.getFilePath(pjPath);
+            String fileName = SVNUtils.getFileName(pjPath);
+            String filePath = SVNUtils.getFilePath(pjPath);
             lda.initializeSVN();
-            SVNWCClient client = lda.getSVNWCClient();
-            String workFile = lda.getLatestFile(filePath, fileName, client);
+            String workFile = kitUtils.getLatestFile(filePath, fileName);
             lda.displayDiff(pjPath, workFile);
         } catch (IllegalArgumentException e) {
             fail("Not yet implemented");

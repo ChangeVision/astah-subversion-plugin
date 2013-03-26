@@ -50,7 +50,7 @@ public class SVNPasswordDialog extends KeyDialog {
             @Override
             public void actionPerformed(ActionEvent e) {
                 password = String.valueOf(passwordField.getPassword());
-                if (SVNUtils.chkNullString(password)){
+                if (SVNUtils.isNullString(password)){
                     JOptionPane.showMessageDialog(null, Messages.getMessage("err_message.config_not_entered_password"));
                 } else {
                     // ウィンドウを閉じる処理

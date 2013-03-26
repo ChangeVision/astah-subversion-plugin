@@ -4,13 +4,13 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import org.tmatesoft.svn.core.SVNDepth;
 import org.tmatesoft.svn.core.SVNException;
-import org.tmatesoft.svn.core.wc.SVNWCClient;
 
-import com.change_vision.astah.extension.plugin.svn_prototype.core.SVNUpdate;
+//import com.change_vision.astah.extension.plugin.svn_prototype.core.SVNUpdate;
 import com.change_vision.astah.extension.plugin.svn_prototype.dialog.SVNSelectMergeDialog;
 import com.change_vision.astah.extension.plugin.svn_prototype.exception.SVNConflictException;
+import com.change_vision.astah.extension.plugin.svn_prototype.exception.SVNPluginException;
+import com.change_vision.astah.extension.plugin.svn_prototype.util.ISVNKitUtils;
 import com.change_vision.astah.extension.plugin.svn_prototype.util.SVNUtils;
 import com.change_vision.jude.api.inf.exception.InvalidEditingException;
 import com.change_vision.jude.api.inf.exception.LicenseNotFoundException;
@@ -27,15 +27,15 @@ public class SVNMergeTask {
 
     private String pjPath   = null;
 
-    private SVNWCClient   wcClient = null;
-
     private ProjectAccessor projectAccessor = null;
 
     private SVNUtils utils = null;
 
-    public SVNMergeTask(String pjPath, SVNWCClient wcClient, ProjectAccessor projectAccessor){
+    private ISVNKitUtils kitUtils = null;
+
+    public SVNMergeTask(String pjPath, ISVNKitUtils kitUtils, ProjectAccessor projectAccessor){
         this.pjPath = pjPath;
-        this.wcClient = wcClient;
+        this.kitUtils = kitUtils;
         this.projectAccessor = projectAccessor;
     }
 
@@ -51,15 +51,19 @@ public class SVNMergeTask {
         this.utils    = utils;
     }
 
-    public List<Integer> doInBackground() throws InvalidEditingException, SVNException,
-                                                    LicenseNotFoundException, ProjectNotFoundException,
-                                                    NonCompatibleException, IOException,
-                                                    ClassNotFoundException, ProjectLockedException, SVNConflictException
+    public void setSVNKitUtils(ISVNKitUtils kitUtils) {
+        this.kitUtils = kitUtils;
+    }
+
+    public List<Integer> doInBackground() throws InvalidEditingException,  SVNException,
+                                                 LicenseNotFoundException, ProjectNotFoundException,
+                                                 NonCompatibleException,   IOException,
+                                                 ClassNotFoundException,   ProjectLockedException,
+                                                 SVNConflictException, SVNPluginException
     {
         // 開いているプロジェクトのパス、ファイル名を取得
-        int markIndex = pjPath.lastIndexOf(File.separator);
-        String fileName = pjPath.substring(markIndex + 1);
-        String filePath = pjPath.substring(0, markIndex + 1);
+        String fileName = SVNUtils.getFileName(pjPath);
+        String filePath = SVNUtils.getFilePath(pjPath);
         String workFile = filePath + "work." + fileName;
         String newFileName = pjPath + ".r" + revision + ".asta";
 
@@ -84,10 +88,7 @@ public class SVNMergeTask {
         }
 
         // 競合時に発生し、リネームした「～.asta.r…」ファイルのファイル名をもとに戻す
-        SVNUpdate.fileRenameAction(newFileName, pjPath + ".r" + revision);
-
-        // 処理対象のファイルのファイルオブジェクト
-        File pjFile = new File(pjPath);
+        utils.renameFile(newFileName, pjPath + ".r" + revision);
 
         if (selected == SVNSelectMergeDialog.NO_MERGE) {
             // 以前と同じ状態にするため、競合解消後、「特定のリビジョンへ更新」処理を実行
@@ -113,30 +114,36 @@ public class SVNMergeTask {
             }
 
             // 競合解消のため、「元に戻す」処理を実行
-            wcClient.doRevert(new File[]{pjFile}, SVNDepth.INFINITY, null);
+//            wcClient.doRevert(new File[]{pjFile}, SVNDepth.INFINITY, null);
+            kitUtils.doRevert(pjPath);
             if (originRevision != revision) {
                 // 「特定のリビジョンへ更新」処理
-                SVNUpdate sUpdate = new SVNUpdate();
-                sUpdate.setUtils(utils);
-                sUpdate.doUpdate(originRevision, pjPath);
+//                SVNUpdate sUpdate = new SVNUpdate();
+//                sUpdate.setUtils(utils);
+//                sUpdate.doUpdate(originRevision, pjPath);
+                kitUtils.doUpdate(originRevision, pjPath);
             }
         } else {
             // 競合解消のため、「元に戻す」処理を実行
-            wcClient.doRevert(new File[]{pjFile}, SVNDepth.INFINITY, null);
+            kitUtils.doRevert(pjPath);
+//            wcClient.doRevert(new File[]{pjFile}, SVNDepth.INFINITY, null);
         }
 
         if (selected == SVNSelectMergeDialog.GET_LATEST_PROJECT){
             File work = new File(workFile);
             work.delete();
         } else {
+            // 処理対象のファイルのファイルオブジェクト
+            File pjFile = new File(pjPath);
+
             if (!pjFile.delete()) {
                 // 元のファイルをリネーム
-                SVNUpdate.fileRenameAction(pjPath, pjPath + ".old");
+                utils.renameFile(pjPath, pjPath + ".old");
                 File oldFile = new File(pjPath + ".old");
                 oldFile.delete();
             }
             // マージしたプロジェクトのプロジェクト名を本来のファイル名に変更
-            SVNUpdate.fileRenameAction(workFile, pjPath);
+            utils.renameFile(workFile, pjPath);
         }
         // プロジェクトを開く
         projectAccessor.open(pjPath);

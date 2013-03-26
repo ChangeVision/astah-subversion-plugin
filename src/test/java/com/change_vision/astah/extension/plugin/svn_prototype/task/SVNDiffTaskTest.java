@@ -64,6 +64,9 @@ public class SVNDiffTaskTest {
         } catch (SVNPluginException e) {
             e.printStackTrace();
             fail("throw SVNPluginException!");
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+            fail("throw ClassNotFoundException!");
         }
     }
 
@@ -88,6 +91,9 @@ public class SVNDiffTaskTest {
         } catch (SVNPluginException e) {
             e.printStackTrace();
             fail("throw SVNPluginException!");
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+            fail("throw ClassNotFoundException!");
         }
     }
 
@@ -110,6 +116,9 @@ public class SVNDiffTaskTest {
         } catch (SVNPluginException e) {
             e.printStackTrace();
             fail("throw SVNPluginException!");
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+            fail("throw ClassNotFoundException!");
         }
     }
 }

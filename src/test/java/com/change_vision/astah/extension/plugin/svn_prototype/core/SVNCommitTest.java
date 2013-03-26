@@ -29,7 +29,7 @@ import com.change_vision.jude.api.inf.project.ProjectAccessorFactory;
 
 public class SVNCommitTest {
     private final String SVN_FILE_PATH = "src/test/resources/sample.asta";
-    private final String NEW_FILE_PATH = "src/test/resources/sample3.asta";
+//    private final String NEW_FILE_PATH = "src/test/resources/sample3.asta";
     private ProjectAccessor pjAccessor;
     private MessageDialog messageDialog;
 
@@ -46,95 +46,60 @@ public class SVNCommitTest {
     @Test
     @Ignore("GUIテスト")
     public void testGetOpenProjectPath1() {
-        SVNCommit ca = new SVNCommit(null);
+        SVNCommit ca = new SVNCommit(null, null);
         ca.setMessageDialog(messageDialog);
         String path;
         try {
-            path = ca.getOpenProjectPath();
+            path = (new SVNUtils()).getOpenProjectPath(ProjectAccessorFactory.getProjectAccessor());
             assertThat(path, is(nullValue()));
         } catch (SVNPluginException e) {
             e.printStackTrace();
             fail("throw SVNPluginException! " + e.getMessage());
+        } catch (ProjectNotFoundException e) {
+            e.printStackTrace();
+            fail("throw ProjectNotFoundException! " + e.getMessage());
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+            fail("throw ClassNotFoundException! " + e.getMessage());
         }
     }
 
     @Test
     @Ignore("GUIテスト")
     public void testGetOpenProjectPath2() {
-        SVNCommit ca = new SVNCommit(null);
+        SVNCommit ca = new SVNCommit(null, null);
         ca.setMessageDialog(messageDialog);
         String path;
         try {
-            path = ca.getOpenProjectPath();
+            path = (new SVNUtils()).getOpenProjectPath(ProjectAccessorFactory.getProjectAccessor());
             assertThat(path, is(notNullValue()));
         } catch (SVNPluginException e) {
             e.printStackTrace();
             fail("throw SVNPluginException! " + e.getMessage());
+        } catch (ProjectNotFoundException e) {
+            e.printStackTrace();
+            fail("throw ProjectNotFoundException! " + e.getMessage());
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+            fail("throw ClassNotFoundException! " + e.getMessage());
         }
     }
 
     @Test
     public void testGetFileName() {
-        SVNCommit ca = new SVNCommit(null);
+        SVNCommit ca = new SVNCommit(null, null);
         ca.setMessageDialog(messageDialog);
-        String fileName = ca.getFileName("C:\\tmp\\bbbbb.asta");
+        String fileName = SVNUtils.getFileName("C:\\tmp\\bbbbb.asta");
         assertThat(fileName, is("bbbbb.asta"));
-    }
-
-    @Test
-    public void testInitializeSVNKit() {
-        SVNCommit ca = new SVNCommit(null);
-        ca.setMessageDialog(messageDialog);
-        try {
-        ca.initializeSVNKit();
-        } catch (Exception e) {
-            fail("Not yet implemented");
-        }
     }
 
     @Test
     @Ignore("getSVNUtils delete")
     public void testGetSVNUtils() {
-        SVNCommit ca = new SVNCommit(null);
+        SVNCommit ca = new SVNCommit(null, null);
         ca.setMessageDialog(messageDialog);
 //        SVNUtils su = ca.getSVNUtils();
 //        assertThat(su, is(notNullValue()));
-    }
-
-    @Test
-    @Ignore("実リポジトリを作らないといけないのでスキップ")
-    public void testGetLatestRevision1() {
-        SVNCommit ca = new SVNCommit(null);
-        ca.setMessageDialog(messageDialog);
-        String fileName = ca.getFileName(SVN_FILE_PATH);
-//        SVNUtils su = ca.getSVNUtils();
-        int latest;
-        try {
-            latest = (int)(ca.getLatestRevision(fileName));
-            assertThat(latest, is(6));
-        } catch (SVNPluginException e) {
-            e.printStackTrace();
-            fail("throw SVNPluginException! " + e.getMessage());
-        }
-    }
-
-    @Test
-    @Ignore("実リポジトリを作らないといけないのでスキップ")
-    public void testGetLatestRevision2() {
-        SVNCommit ca = new SVNCommit(null);
-        ca.setMessageDialog(messageDialog);
-        String fileName = ca.getFileName(SVN_FILE_PATH);
-//        SVNUtils su = ca.getSVNUtils();
-//        su.repository = null;
-//        su.user = null;
-        int latest;
-        try {
-            latest = (int)(ca.getLatestRevision(fileName));
-            assertThat(latest, is(-1));
-        } catch (SVNPluginException e) {
-            e.printStackTrace();
-            fail("throw SVNPluginException! " + e.getMessage());
-        }
     }
 
     @Test
@@ -142,7 +107,7 @@ public class SVNCommitTest {
         long latestRevision = 1;
         long baseRevision   = 1;
 
-        SVNCommit ca = new SVNCommit(null);
+        SVNCommit ca = new SVNCommit(null, null);
         ca.setMessageDialog(messageDialog);
         boolean result = ca.checkConflict(baseRevision, latestRevision);
         assertThat(result, is(false));
@@ -153,7 +118,7 @@ public class SVNCommitTest {
         long latestRevision = 1;
         long baseRevision   = 2;
 
-        SVNCommit ca = new SVNCommit(null);
+        SVNCommit ca = new SVNCommit(null, null);
         ca.setMessageDialog(messageDialog);
         boolean result = ca.checkConflict(baseRevision, latestRevision);
         assertThat(result, is(true));
@@ -162,7 +127,7 @@ public class SVNCommitTest {
     @Test
     @Ignore("GUIテスト")
     public void testDisplayCommitComment() {
-        SVNCommit ca = new SVNCommit(null);
+        SVNCommit ca = new SVNCommit(null, null);
         ca.setMessageDialog(messageDialog);
         String comment;
         try {
@@ -174,23 +139,23 @@ public class SVNCommitTest {
         }
     }
 
-    @Test
-    @Ignore("実リポジトリを作らないといけないのでスキップ")
-    public void testNewRegistration() {
-        SVNCommit ca = new SVNCommit(null);
-        ca.setMessageDialog(messageDialog);
-        boolean result;
-        try {
-            result = ca.newRegistration(NEW_FILE_PATH
-                                              , ca.getFileName(NEW_FILE_PATH)
-                                              , "JUnitテスト");
-            assertThat(result, is(true));
-        } catch (SVNPluginException e) {
-            e.printStackTrace();
-            fail("throw SVNPluginException! " + e.getMessage());
-        }
-        
-    }
+//    @Test
+//    @Ignore("実リポジトリを作らないといけないのでスキップ")
+//    public void testNewRegistration() {
+//        SVNCommit ca = new SVNCommit(null, null);
+//        ca.setMessageDialog(messageDialog);
+//        boolean result;
+//        try {
+//            result = ca.newRegistration(NEW_FILE_PATH
+//                                              , SVNUtils.getFileName(NEW_FILE_PATH)
+//                                              , "JUnitテスト");
+//            assertThat(result, is(true));
+//        } catch (SVNPluginException e) {
+//            e.printStackTrace();
+//            fail("throw SVNPluginException! " + e.getMessage());
+//        }
+//        
+//    }
 
     private ProjectAccessor openProject(String path) {
         try {

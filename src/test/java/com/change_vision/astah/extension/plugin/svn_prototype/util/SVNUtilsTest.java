@@ -11,7 +11,6 @@ import org.tmatesoft.svn.core.SVNErrorCode;
 import org.tmatesoft.svn.core.SVNErrorMessage;
 import org.tmatesoft.svn.core.SVNException;
 import org.tmatesoft.svn.core.auth.ISVNAuthenticationManager;
-import org.tmatesoft.svn.core.io.SVNRepository;
 
 import com.change_vision.astah.extension.plugin.svn_prototype.exception.SVNNotConfigurationException;
 import com.change_vision.jude.api.inf.exception.LicenseNotFoundException;
@@ -20,17 +19,16 @@ import com.change_vision.jude.api.inf.exception.ProjectLockedException;
 import com.change_vision.jude.api.inf.exception.ProjectNotFoundException;
 import com.change_vision.jude.api.inf.project.ProjectAccessor;
 import com.change_vision.jude.api.inf.project.ProjectAccessorFactory;
-import com.change_vision.jude.api.inf.view.IViewManager;
 
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
-import static org.mockito.Mockito.mock;
+//import static org.mockito.Mockito.mock;
 
 public class SVNUtilsTest {
     private final String SVN_FILE_PATH = "./svn_prototype/src/test/resources/com/change_vision/astah/extension/plugin/svn_prototype/sample.asta";
-    private final String SVN_REPOSITORY_URL = "file:///C:/svn_repository";
-    private final String SVN_USER = "kasaba";
-    private final String SVN_PASSWORD = "";
+//    private final String SVN_REPOSITORY_URL = "file:///C:/svn_repository";
+//    private final String SVN_USER = "kasaba";
+//    private final String SVN_PASSWORD = "";
 
     @Test
     public void testSVNUtils() {
@@ -49,7 +47,7 @@ public class SVNUtilsTest {
         SVNUtils utils = new SVNUtils();
         boolean result;
         try {
-            result = utils.getPreferencesInfo("�L�����Z�����b�Z�[�W");
+            result = utils.getPreferencesInfo("キャンセルメッセージ");
             assertThat(result, is(true));
         } catch (SVNNotConfigurationException e) {
             e.printStackTrace();
@@ -65,19 +63,19 @@ public class SVNUtilsTest {
             return;
         }
 
-        boolean result = SVNUtils.chkNotSaveProject(SVN_FILE_PATH);
+        boolean result = SVNUtils.isSaveProject(SVN_FILE_PATH);
         assertThat(result, is(false));
     }
 
     @Test
     public void testChkNullString1() {
-        boolean result = SVNUtils.chkNullString("String");
+        boolean result = SVNUtils.isNullString("String");
         assertThat(result, is(false));
     }
 
     @Test
     public void testChkNullString2() {
-        boolean result = SVNUtils.chkNullString(null);
+        boolean result = SVNUtils.isNullString(null);
         assertThat(result, is(true));
     }
 
@@ -85,24 +83,26 @@ public class SVNUtilsTest {
     public void testReadFileByte() {
         byte[] b = null;
         try {
-            b = SVNUtils.readFileByte(SVN_FILE_PATH);
+            SVNUtils utils = new SVNUtils();
+            b = utils.readFileByte(SVN_FILE_PATH);
         } catch (IOException e) {
             fail("Not yet implemented");
         }
         assertThat(b, is(notNullValue()));
     }
-
-    @Test
-    public void testGetRepos() {
-        SVNRepository repos = null;
-        try {
-            repos = SVNUtils.getRepos(SVN_REPOSITORY_URL, SVN_USER, SVN_PASSWORD);
-        } catch (SVNException e) {
-            fail("Not yet implemented");
-        }
-        assertThat(repos, is(notNullValue()));
-    }
-
+//
+//    @Test
+//    public void testGetRepos() {
+//        SVNRepository repos = null;
+//        try {
+//            SVNUtils utils = new SVNUtils();
+//            repos = utils.getRepos(SVN_REPOSITORY_URL, SVN_USER, SVN_PASSWORD);
+//        } catch (SVNException e) {
+//            fail("Not yet implemented");
+//        }
+//        assertThat(repos, is(notNullValue()));
+//    }
+//
 //    @Test
 //    public void testGetViewManager() {
 //        ProjectAccessor pjAccessor = openProject(SVN_FILE_PATH);
@@ -119,7 +119,8 @@ public class SVNUtilsTest {
     public void testChkLoginError1() {
         SVNException se = new SVNException(SVNErrorMessage.create(SVNErrorCode.RA_NOT_AUTHORIZED , "Authentication required for AAA"));
         System.out.println(se.getMessage());
-        boolean result = SVNUtils.chkLoginError(se);
+        SVNUtils utils = new SVNUtils();
+        boolean result = utils.isLoginError(se);
         
         assertThat(result, is(true));
     }
@@ -128,7 +129,8 @@ public class SVNUtilsTest {
     public void testChkLoginError2() {
         SVNException se = new SVNException(SVNErrorMessage.create(SVNErrorCode.FS_NOT_ID , "String does not represent a node or node-rev-id"));
         System.out.println(se.getMessage());
-        boolean result = SVNUtils.chkLoginError(se);
+        SVNUtils utils = new SVNUtils();
+        boolean result = utils.isLoginError(se);
         
         assertThat(result, is(false));
     }
@@ -175,7 +177,8 @@ public class SVNUtilsTest {
     public void testGetDefaultRepositoryURL1() {
         String url = null;
         try {
-            url = SVNUtils.getDefaultRepositoryURL();
+            SVNUtils utils = new SVNUtils();
+            url = utils.getDefaultRepositoryURL();
         } catch (SVNException e) {
             fail("Not yet implemented");
         } catch (ClassNotFoundException e) {
@@ -186,17 +189,18 @@ public class SVNUtilsTest {
         assertThat(url, is(notNullValue()));
     }
 
-    @Test
-    public void testGetDefaultRepositoryURL2() {
-        String url = null;
-        try {
-            url = SVNUtils.getDefaultRepositoryURL(SVN_FILE_PATH);
-        } catch (SVNException e) {
-            fail("Not yet implemented");
-        }
-        assertThat(url, is(notNullValue()));
-    }
-
+//    @Test
+//    public void testGetDefaultRepositoryURL2() {
+//        String url = null;
+//        try {
+//            SVNUtils utils = new SVNUtils();
+//            url = utils.getDefaultRepositoryURL(SVN_FILE_PATH);
+//        } catch (SVNException e) {
+//            fail("Not yet implemented");
+//        }
+//        assertThat(url, is(notNullValue()));
+//    }
+//
 //    @Test
 //    public void testChkEditingProject() {
 //        ProjectAccessor pjAccessor = openProject(SVN_FILE_PATH);
@@ -211,7 +215,8 @@ public class SVNUtilsTest {
 
     @Test
     public void testEscapeSpaceForMac() {
-        String str = SVNUtils.escapeSpaceForMac("orig in");
+        SVNUtils utils = new SVNUtils();
+        String str = utils.escapeSpaceForMac("orig in");
         assertThat(str, is("orig in"));
     }
 
