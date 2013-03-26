@@ -104,6 +104,25 @@ public class SVNKitUtils implements ISVNKitUtils {
         return scm.getWCClient();
     }
 
+    /* (non-Javadoc)
+     * @see com.change_vision.astah.extension.plugin.svn_prototype.util.ISVNKitUtils#getSVNWCClient()
+     */
+    @Override
+    public SVNUpdateClient getSVNUpdateClient() throws SVNException, SVNPluginException {
+        SVNClientManager scm;
+
+        if (svnUtils.getLoginKind() == SVNUtils.LOGIN_KIND_SSH
+                && SVNUtils.isNullString(svnUtils.getPassword())) {
+            scm = SVNClientManager.newInstance(SVNWCUtil.createDefaultOptions(true),
+                    svnUtils.getAuthManager());
+        } else {
+            scm = SVNClientManager.newInstance(SVNWCUtil.createDefaultOptions(true),
+                    svnUtils.getUser(), svnUtils.getPassword());
+        }
+
+        return scm.getUpdateClient();
+    }
+
     @Override
     public long getBaseRevision(String destination) throws SVNException {
         return getBaseRevision(new File(destination));
@@ -231,18 +250,27 @@ public class SVNKitUtils implements ISVNKitUtils {
     }
 
     @Override
-    public boolean doUpdate(String path) throws SVNException, SVNConflictException {
+    public boolean doUpdate(String path) throws SVNException, SVNConflictException, SVNPluginException {
         return doUpdate(svnUtils.getLatestRevision(), path);
     }
 
     @Override
-    public boolean doUpdate(Long revision, String path) throws SVNException, SVNConflictException {
+    public boolean doUpdate(Long revision, String path) throws SVNException, SVNConflictException,
+                                                               SVNPluginException {
         SVNConflictResolverHandler handler = new SVNConflictResolverHandler(null, path);
-        SVNUpdateClient client = getUpdateClient(handler);
+//        SVNUpdateClient client = getUpdateClient(handler);
+        SVNUpdateClient client = getSVNUpdateClient();
+
+//        DefaultSVNOptions options = (DefaultSVNOptions) client.getOptions();
+//        options.setConflictHandler(handler);
+        ((DefaultSVNOptions) client.getOptions()).setConflictHandler(handler);
 
         try {
             // Update処理
             client.doUpdate(new File(path), SVNRevision.create(revision), SVNDepth.INFINITY, true, true);
+            if (handler.isConflict()) {
+                throw new SVNConflictException();
+            }
             return true;
         } catch (SVNException e) {
             if (handler.getMergeFlg()) {
@@ -252,15 +280,15 @@ public class SVNKitUtils implements ISVNKitUtils {
         }
     }
 
-    private SVNUpdateClient getUpdateClient(SVNConflictResolverHandler handler) {
-        SVNClientManager scm = getSVNClientManager();
-        SVNUpdateClient client = scm.getUpdateClient();
-
-        DefaultSVNOptions options = (DefaultSVNOptions) client.getOptions();
-        options.setConflictHandler(handler);
-
-        return client;
-    }
+//    private SVNUpdateClient getUpdateClient(SVNConflictResolverHandler handler) {
+////        SVNClientManager scm = getSVNClientManager();
+//        SVNUpdateClient client = getSVNClientManager().getUpdateClient();
+//
+//        DefaultSVNOptions options = (DefaultSVNOptions) client.getOptions();
+//        options.setConflictHandler(handler);
+//
+//        return client;
+//    }
 
     public String getBaseFile(String filePath, String fileName) throws SVNPluginException, FileNotFoundException {
         // 引数チェック
@@ -279,7 +307,6 @@ public class SVNKitUtils implements ISVNKitUtils {
             baseFile.close();
         } catch (FileNotFoundException e) {
             throw e;
-//            throw new SVNPluginException(Messages.getMessage("err_message.common_io_error"), e);
         } catch (SVNException e) {
             if (!svnUtils.isLoginError(e)) {
                 throw new SVNPluginException(Messages.getMessage("err_message.common_svn_error"), e);
@@ -304,10 +331,6 @@ public class SVNKitUtils implements ISVNKitUtils {
         try {
 //            entry = utils.getSVNDirEntry(fileName);
 //            if (entry == null) {
-////                messageDialog.showKeyMessage("err_message.common_not_commit");
-////                JOptionPane.showMessageDialog(null,
-////                        Messages.getMessage("err_message.common_not_commit"));
-////                return null;
 //                throw new SVNNotCommitException(Messages.getMessage("err_message.common_not_commit"));
 //            }
 //            long revision = entry.getRevision();
@@ -323,19 +346,12 @@ public class SVNKitUtils implements ISVNKitUtils {
         } catch (SVNException e) {
             if (!svnUtils.isLoginError(e)) {
                 throw new SVNPluginException(Messages.getMessage("err_message.common_svn_error"), e);
-//                JOptionPane.showMessageDialog(null,
-//                        Messages.getMessage("err_message.common_svn_error"));
             }
             return null;
         } catch (FileNotFoundException e) {
             throw e;
-//            throw new SVNPluginException(Messages.getMessage("err_message.common_io_error"), e);
-////            JOptionPane.showMessageDialog(null, Messages.getMessage("err_message.common_io_error"));
-////            return null;
         } catch (IOException e) {
             throw new SVNPluginException(Messages.getMessage("err_message.common_io_error"), e);
-//            JOptionPane.showMessageDialog(null, Messages.getMessage("err_message.common_io_error"));
-//            return null;
         }
         return workFile;
     }

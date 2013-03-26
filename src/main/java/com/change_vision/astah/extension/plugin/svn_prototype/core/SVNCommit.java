@@ -27,10 +27,11 @@ public class SVNCommit {
     private ISVNKitUtils kitUtils;
 
     public SVNCommit(SVNComment comment, ISVNKitUtils kitUtils) {
-        utils = new SVNUtils();
+        this.utils = new SVNUtils();
         this.comment = comment;
         this.messageDialog = new MessageDialog(null);
         this.kitUtils = kitUtils;
+        this.utils.setSVNKitUtils(this.kitUtils);
     }
 
     public void setUtils(SVNUtils utils) {
@@ -75,61 +76,14 @@ public class SVNCommit {
 
             // コミット本処理
             kitUtils.doCommit(fileName, comment, baseRevision);
-//            if (baseRevision < 0) {
-//                // 新規登録
-//            } else {
-//                // 登録済みファイルUPDATE コミット 
-//                // 古いコンテンツを取得する 
-//                byte[] oldData;
-//                byte[] newData;
-//                ByteArrayInputStream oldStream = null;
-//                ByteArrayInputStream newStream = null;
-//
-//                String checksum;
-//
-//                ISVNEditor editor = null;
-//                SVNDeltaGenerator deltaGenerator = new SVNDeltaGenerator();
-//
-//                newData = SVNUtils.readFileByte(pjPath);
-//                newStream = new ByteArrayInputStream(newData);
-//
-//                if (utils.getSVNDirEntry(fileName) != null) {
-//                    ByteArrayOutputStream oldOut = new ByteArrayOutputStream();
-//
-//                    (utils.getRepos()).getFile(fileName, -1, SVNProperties.wrap(Collections.EMPTY_MAP), oldOut);
-//                    editor = (utils.getRepos()).getCommitEditor(comment == null ? "" : comment, null, true, null);
-//                    editor.openRoot(-1);
-//                    oldData = oldOut.toByteArray();
-//                    oldStream = new ByteArrayInputStream(oldData);
-//                    editor.openFile(fileName, -1);
-//                    editor.applyTextDelta(fileName, null);
-//                    checksum = deltaGenerator.sendDelta(fileName, oldStream, 0, newStream, editor, true);
-//                } else {
-//                    editor = (utils.getRepos()).getCommitEditor(comment == null ? "" : comment, null, true, null);
-//                    editor.openRoot(-1);
-//                    editor.addFile(fileName, null,-1);
-//                    editor.applyTextDelta(fileName, null);
-//                    InputStream is = new FileInputStream(new File(pjPath));
-//                    checksum = deltaGenerator.sendDelta(fileName, is, editor, true);
-//                }
-//
-//                editor.closeFile(fileName, checksum);
-//                editor.closeDir();
-//                editor.closeEdit();
-//                editor = null;
-//            }
 
             // ファイルを更新
             try {
-//                SVNUpdate sUpdate = new SVNUpdate();
-//                sUpdate.setUtils(utils);
-//                sUpdate.doUpdate(pjPath);
                 kitUtils.doUpdate(pjPath);
             } catch (SVNConflictException e) {
                 // 競合した場合
                 // 競合解消のため、「元に戻す」処理を実行
                 kitUtils.doRevert(pjPath);
-//                (kitUtils.getSVNWCClient()).doRevert(new File[]{new File(pjPath)}, SVNDepth.INFINITY, null);
             }
 
             messageDialog.showKeyMessage("info_message.commit_complete");
@@ -159,33 +113,4 @@ public class SVNCommit {
 
         return comment.getCommitComment();
     }
-//
-//    public boolean newRegistration(String pjPath, String fileName, String comment) throws SVNPluginException {
-//        // 新規登録
-//        ISVNEditor editor;
-//        try {
-//            editor = (utils.getRepos()).getCommitEditor(comment, null, true, null);
-//            editor.openRoot(-1);
-//            editor.addFile(fileName, null,-1);
-//            editor.applyTextDelta(fileName, null);
-//            SVNDeltaGenerator deltaGenerator = new SVNDeltaGenerator();
-//            InputStream is;
-//            is = new FileInputStream(new File(pjPath));
-//            String checksum = deltaGenerator.sendDelta(fileName, is, editor, true);
-//
-//            editor.closeFile(fileName, checksum);
-//            editor.closeDir();
-//
-//            editor.closeEdit();
-//        } catch (FileNotFoundException e) {
-//            throw new SVNPluginException(Messages.getMessage("err_message.common_io_error"), e);
-//        } catch (SVNException e) {
-//            if (!SVNUtils.isLoginError(e)){
-//                throw new SVNPluginException(Messages.getMessage("err_message.common_svn_error"), e);
-//            }
-//            return false;
-//        }
-//        return true;
-//    }
-//
 }

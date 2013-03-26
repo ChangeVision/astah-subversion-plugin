@@ -31,6 +31,7 @@ public class SVNBaseDiffExecutor {
         this.messageDialog = new MessageDialog();
         this.utils = new SVNUtils();
         this.kitUtils = kitUtils;
+        this.utils.setSVNKitUtils(this.kitUtils);
     }
 
     public void setMessageDialog(MessageDialog messageDialog) {
@@ -61,10 +62,8 @@ public class SVNBaseDiffExecutor {
         }
 
         kitUtils.setSVNUtils(utils);
-//        SVNWCClient client = kitUtils.getSVNWCClient();
 
         // リポジトリからベースリビジョンのファイルを取得
-//        String workFile = getBaseFile(filePath, fileName, client);
         String workFile = kitUtils.getBaseFile(filePath, fileName);
 
         // 差分表示
@@ -73,34 +72,6 @@ public class SVNBaseDiffExecutor {
         return null;
     }
 
-//    public String getBaseFile(String filePath, String fileName, SVNWCClient client) throws SVNPluginException {
-//        // 引数チェック
-//        if (client == null || filePath == null || fileName == null || filePath.length() == 0
-//                || fileName.length() == 0) {
-//            return null;
-//        }
-//
-//        // リポジトリからベースリビジョンのファイルを取得
-//        String workFile = filePath + "base." + fileName;
-//        FileOutputStream baseFile;
-//        try {
-//            baseFile = new FileOutputStream(workFile);
-//            client.doGetFileContents(new File(filePath + fileName), SVNRevision.UNDEFINED, null,
-//                    false, baseFile);
-//            baseFile.close();
-//        } catch (FileNotFoundException e) {
-//            throw new SVNPluginException(Messages.getMessage("err_message.common_io_error"), e);
-//        } catch (SVNException e) {
-//            if (!utils.isLoginError(e)) {
-//                throw new SVNPluginException(Messages.getMessage("err_message.common_svn_error"), e);
-//            }
-//            return null;
-//        } catch (IOException e) {
-//            throw new SVNPluginException(Messages.getMessage("err_message.common_io_error"), e);
-//        }
-//        return workFile;
-//    }
-//
     public void displayDiff(String pjPath, String workFile) throws SVNPluginException {
         // 引数チェック
         if (pjPath == null || workFile == null || pjPath.length() == 0 || workFile.length() == 0) {

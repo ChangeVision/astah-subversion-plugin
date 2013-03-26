@@ -144,7 +144,6 @@ public class SVNConfigurationDialog extends KeyDialog {
             JLabel lblRepository = new JLabel(" " + Messages.getMessage("login_dialog.repository_label") + " ");
             if (SVNUtils.isNullString(url)) {
                 messageDialog.showKeyMessage("err_message.config_not_entered_repository");
-//                JOptionPane.showMessageDialog(null, Messages.getMessage("err_message.config_not_entered_repository"));
                 repository = new JTextField(50);
             } else {
                 repository = new JTextField(url, 50);
@@ -250,14 +249,12 @@ public class SVNConfigurationDialog extends KeyDialog {
                         preferences.put(SVNPreferences.KEY_ASTAH_HOME, astah_home.getText());
                     } else {
                         messageDialog.showKeyMessage("err_message.config_not_choice_astah");
-//                        JOptionPane.showMessageDialog(null, Messages.getMessage("err_message.config_not_choice_astah"));
                         return;
                     }
                     if (!SVNUtils.isNullString(repository.getText())) {
                         preferences.put(SVNPreferences.KEY_REPOSITORY_URL, repository.getText());
                     } else {
                         messageDialog.showKeyMessage("err_message.config_not_entered_repository");
-//                        JOptionPane.showMessageDialog(null, Messages.getMessage("err_message.config_not_entered_repository"));
                         return;
                     }
 
@@ -268,7 +265,6 @@ public class SVNConfigurationDialog extends KeyDialog {
                             password = String.valueOf(basicPassword.getPassword());
                             if (SVNUtils.isNullString(password)) {
                                 messageDialog.showKeyMessage("err_message.config_not_entered_password");
-//                                JOptionPane.showMessageDialog(null, Messages.getMessage("err_message.config_not_entered_password"));
                                 return;
                             }
                         }
@@ -281,7 +277,6 @@ public class SVNConfigurationDialog extends KeyDialog {
                             password = String.valueOf(sshPassword.getPassword());
                             if (SVNUtils.isNullString(password)) {
                                 messageDialog.showKeyMessage("err_message.config_not_entered_password");
-//                                JOptionPane.showMessageDialog(null, Messages.getMessage("err_message.config_not_entered_password"));
                                 return;
                             }
                         }
@@ -293,7 +288,6 @@ public class SVNConfigurationDialog extends KeyDialog {
                             preferences.put(SVNPreferences.KEY_KEYFILE_PATH, key_file_path.getText());
                         } else if (sshSavePw.isSelected()) {
                             messageDialog.showKeyMessage("err_message.config_not_entered_keyfile");
-//                            JOptionPane.showMessageDialog(null, Messages.getMessage("err_message.config_not_entered_keyfile"));
                             return;
                         }
                     } else if (noAuthRadio.isSelected()){
@@ -301,7 +295,6 @@ public class SVNConfigurationDialog extends KeyDialog {
                         loginKind = SVNUtils.LOGIN_KIND_NOAUTH;
                     } else {
                         messageDialog.showKeyMessage("err_message.config_not_selected_auth");
-//                        JOptionPane.showMessageDialog(null, Messages.getMessage("err_message.config_not_selected_auth"));
                         return;
                     }
 
@@ -310,7 +303,6 @@ public class SVNConfigurationDialog extends KeyDialog {
                         preferences.put(SVNPreferences.KEY_USER_NAME, user);
                     } else {
                         messageDialog.showKeyMessage("err_message.config_not_entered_user");
-//                        JOptionPane.showMessageDialog(null, Messages.getMessage("err_message.config_not_entered_user"));
                         return;
                     }
 
@@ -391,10 +383,10 @@ public class SVNConfigurationDialog extends KeyDialog {
         basicRadio.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-            	controllContentEnabled(SVNUtils.LOGIN_KIND_BASIC);
+                controllContentEnabled(SVNUtils.LOGIN_KIND_BASIC);
             }
         });
-    	basicRadio.setSelected(selected == SVNUtils.LOGIN_KIND_BASIC);
+        basicRadio.setSelected(selected == SVNUtils.LOGIN_KIND_BASIC);
         basicAuthPanel.add(basicRadio, BorderLayout.NORTH);
 
         bGroup.add(basicRadio);
@@ -405,7 +397,7 @@ public class SVNConfigurationDialog extends KeyDialog {
         if (SVNUtils.isNullString(userName) || selected != SVNUtils.LOGIN_KIND_BASIC) {
             basicUser = new JTextField(50);
         } else {
-        	basicUser = new JTextField(userName, 50);
+            basicUser = new JTextField(userName, 50);
         }
         userPanel.add(lblUser, BorderLayout.WEST);
         userPanel.add(basicUser, BorderLayout.CENTER);
@@ -437,9 +429,9 @@ public class SVNConfigurationDialog extends KeyDialog {
                 // クリックされたチェックボックスの状態を取得
                 JCheckBox checkbox = (JCheckBox)e.getSource();
                 if (checkbox.isSelected()) {
-                	basicPassword.setEnabled(true);
+                    basicPassword.setEnabled(true);
                 } else {
-                	basicPassword.setEnabled(false);
+                    basicPassword.setEnabled(false);
                 }
 
             }
@@ -455,6 +447,7 @@ public class SVNConfigurationDialog extends KeyDialog {
         return basicAuthPanel;
     }
 
+// TODO SVN SSL認証パターン
 //    private JPanel getSSLAuthPanel(Preferences preferences, BevelBorder border, int selected) throws SVNException, ProjectNotFoundException, ClassNotFoundException, UnsupportedEncodingException {
 //        JPanel sslAuthPanel = new JPanel();
 //        JPanel userPanel       = new JPanel();
@@ -467,7 +460,7 @@ public class SVNConfigurationDialog extends KeyDialog {
 //        sslRadio.addActionListener(new ActionListener() {
 //            @Override
 //            public void actionPerformed(ActionEvent e) {
-//            	controllContentEnabled(SVNUtils.LOGIN_KIND_SSL);
+//                controllContentEnabled(SVNUtils.LOGIN_KIND_SSL);
 //            }
 //        });
 //        sslRadio.setSelected(selected == SVNUtils.LOGIN_KIND_SSL);
@@ -482,7 +475,7 @@ public class SVNConfigurationDialog extends KeyDialog {
 //        if (SVNUtils.chkNullString(userName) || selected != SVNUtils.LOGIN_KIND_SSL) {
 //            sslUser = new JTextField(50);
 //        } else {
-//        	sslUser = new JTextField(userName, 50);
+//            sslUser = new JTextField(userName, 50);
 //        }
 //        userPanel.add(lblUser);
 //        userPanel.add(sslUser);
@@ -515,9 +508,9 @@ public class SVNConfigurationDialog extends KeyDialog {
 //                // クリックされたチェックボックスの状態を取得
 //                JCheckBox checkbox = (JCheckBox)e.getSource();
 //                if (checkbox.isSelected()) {
-//                	sslPassword.setEnabled(true);
+//                    sslPassword.setEnabled(true);
 //                } else {
-//                	sslPassword.setEnabled(false);
+//                    sslPassword.setEnabled(false);
 //                }
 //
 //            }
@@ -543,7 +536,7 @@ public class SVNConfigurationDialog extends KeyDialog {
         sshRadio.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-            	controllContentEnabled(SVNUtils.LOGIN_KIND_SSH);
+                controllContentEnabled(SVNUtils.LOGIN_KIND_SSH);
             }
         });
         sshRadio.setSelected(selected == SVNUtils.LOGIN_KIND_SSH);
@@ -557,7 +550,7 @@ public class SVNConfigurationDialog extends KeyDialog {
         if (SVNUtils.isNullString(userName) || selected != SVNUtils.LOGIN_KIND_SSH) {
             sshUser = new JTextField(50);
         } else {
-        	sshUser = new JTextField(userName, 50);
+            sshUser = new JTextField(userName, 50);
         }
         userPanel.add(lblUser, BorderLayout.WEST);
         userPanel.add(sshUser, BorderLayout.CENTER);
@@ -590,9 +583,9 @@ public class SVNConfigurationDialog extends KeyDialog {
                 // クリックされたチェックボックスの状態を取得
                 JCheckBox checkbox = (JCheckBox)e.getSource();
                 if (checkbox.isSelected()) {
-                	sshPassword.setEnabled(true);
+                    sshPassword.setEnabled(true);
                 } else {
-                	sshPassword.setEnabled(false);
+                    sshPassword.setEnabled(false);
                 }
 
             }
@@ -655,7 +648,7 @@ public class SVNConfigurationDialog extends KeyDialog {
         noAuthRadio.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-            	controllContentEnabled(SVNUtils.LOGIN_KIND_NOAUTH);
+                controllContentEnabled(SVNUtils.LOGIN_KIND_NOAUTH);
             }
         });
         noAuthRadio.setSelected(selected == SVNUtils.LOGIN_KIND_NOAUTH);
@@ -669,7 +662,7 @@ public class SVNConfigurationDialog extends KeyDialog {
         if (SVNUtils.isNullString(userName) || selected != SVNUtils.LOGIN_KIND_NOAUTH) {
             noAuthUser = new JTextField(50);
         } else {
-        	noAuthUser = new JTextField(userName, 50);
+            noAuthUser = new JTextField(userName, 50);
         }
         userPanel.add(lblUser);
         userPanel.add(noAuthUser);
@@ -703,43 +696,47 @@ public class SVNConfigurationDialog extends KeyDialog {
     }
 
     private void controllContentEnabled(int selected){
-    	basicUser.setEnabled(false);
-//    	sslUser.setEnabled(false);
-    	sshUser.setEnabled(false);
-    	noAuthUser.setEnabled(false);
-    	key_file_path.setEnabled(false);
-    	basicPassword.setEnabled(false);
-//    	sslPassword.setEnabled(false);
-    	sshPassword.setEnabled(false);
-    	basicSavePw.setEnabled(false);
-//    	sslSavePw.setEnabled(false);
-    	sshSavePw.setEnabled(false);
-    	keyFileButton.setEnabled(false);
+        basicUser.setEnabled(false);
+// TODO SVN SSL認証パターン
+//        sslUser.setEnabled(false);
+        sshUser.setEnabled(false);
+        noAuthUser.setEnabled(false);
+        key_file_path.setEnabled(false);
+        basicPassword.setEnabled(false);
+// TODO SVN SSL認証パターン
+//        sslPassword.setEnabled(false);
+        sshPassword.setEnabled(false);
+        basicSavePw.setEnabled(false);
+// TODO SVN SSL認証パターン
+//        sslSavePw.setEnabled(false);
+        sshSavePw.setEnabled(false);
+        keyFileButton.setEnabled(false);
 
-    	if (selected == SVNUtils.LOGIN_KIND_BASIC){
-        	basicUser.setEnabled(true);
-        	basicSavePw.setEnabled(true);
-        	if (basicSavePw.isSelected()){
-        	    basicPassword.setEnabled(true);
-        	}
-//    	} else if (selected == SVNUtils.LOGIN_KIND_SSL) {
-//        	sslUser.setEnabled(true);
-//        	sslSavePw.setEnabled(true);
-//        	if (sslSavePw.isSelected()){
-//        	    sslPassword.setEnabled(true);
-//        	}
-    	} else if (selected == SVNUtils.LOGIN_KIND_SSH) {
-        	sshUser.setEnabled(true);
-        	sshSavePw.setEnabled(true);
-        	if (sshSavePw.isSelected()){
-        	    sshPassword.setEnabled(true);
-        	}
-        	keyFileButton.setEnabled(true);
-    	} else if (selected == SVNUtils.LOGIN_KIND_NOAUTH) {
-        	noAuthUser.setEnabled(true);
-    	}
+        if (selected == SVNUtils.LOGIN_KIND_BASIC){
+            basicUser.setEnabled(true);
+            basicSavePw.setEnabled(true);
+            if (basicSavePw.isSelected()){
+                basicPassword.setEnabled(true);
+            }
+// TODO SVN SSL認証パターン
+//        } else if (selected == SVNUtils.LOGIN_KIND_SSL) {
+//            sslUser.setEnabled(true);
+//            sslSavePw.setEnabled(true);
+//            if (sslSavePw.isSelected()){
+//                sslPassword.setEnabled(true);
+//            }
+        } else if (selected == SVNUtils.LOGIN_KIND_SSH) {
+            sshUser.setEnabled(true);
+            sshSavePw.setEnabled(true);
+            if (sshSavePw.isSelected()){
+                sshPassword.setEnabled(true);
+            }
+            keyFileButton.setEnabled(true);
+        } else if (selected == SVNUtils.LOGIN_KIND_NOAUTH) {
+            noAuthUser.setEnabled(true);
+        }
 
-    	return;
+        return;
     }
 
     public boolean getErrFlg(){

@@ -114,19 +114,14 @@ public class SVNMergeTask {
             }
 
             // 競合解消のため、「元に戻す」処理を実行
-//            wcClient.doRevert(new File[]{pjFile}, SVNDepth.INFINITY, null);
             kitUtils.doRevert(pjPath);
             if (originRevision != revision) {
                 // 「特定のリビジョンへ更新」処理
-//                SVNUpdate sUpdate = new SVNUpdate();
-//                sUpdate.setUtils(utils);
-//                sUpdate.doUpdate(originRevision, pjPath);
                 kitUtils.doUpdate(originRevision, pjPath);
             }
         } else {
             // 競合解消のため、「元に戻す」処理を実行
             kitUtils.doRevert(pjPath);
-//            wcClient.doRevert(new File[]{pjFile}, SVNDepth.INFINITY, null);
         }
 
         if (selected == SVNSelectMergeDialog.GET_LATEST_PROJECT){

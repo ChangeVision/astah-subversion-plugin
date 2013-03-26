@@ -288,14 +288,6 @@ public class SVNUtils {
         fis.close();
         return b;
     }
-//
-//    public SVNRepository getRepos(String url, String userName, String password) throws SVNException {
-//        SVNRepository repos = SVNRepositoryFactory.create(SVNURL.parseURIDecoded(url));
-//        ISVNAuthenticationManager authManager = SVNWCUtil.createDefaultAuthenticationManager(userName, password);
-//        repos.setAuthenticationManager(authManager);
-//
-//        return repos;
-//    }
 
     public IViewManager getViewManager() {
         ProjectAccessor projectAccessor = getProjectAccessor();
@@ -394,30 +386,6 @@ public class SVNUtils {
         String pjPath = projectAccessor.getProjectPath();
         return kitUtils.getDefaultRepositoryURL(pjPath);
     }
-//
-//    public String getDefaultRepositoryURL(String filePath) throws SVNException {
-//        int markIndex;
-//        String property = null;
-//        SVNURL url;
-//        SVNStatus status = SVNClientManager.newInstance().getStatusClient().doStatus(new File(filePath), false);
-//        if (status != null) {
-//            url = status.getURL();
-//            if (url == null) {
-//                markIndex = filePath.lastIndexOf(File.separator);
-//                String path = filePath.substring(0, markIndex);
-//                status = SVNClientManager.newInstance().getStatusClient().doStatus(new File(path), false);
-//                if (status != null) {
-//                    url = status.getURL();
-//                    property = url.toDecodedString();
-//                }
-//            } else {
-//                property = url.toDecodedString();
-//                markIndex = property.lastIndexOf("/");
-//                property = property.substring(0, markIndex + 1);
-//            }
-//        }
-//        return property;
-//    }
 
     public boolean isEditingProject(){
         /* 
@@ -459,19 +427,11 @@ public class SVNUtils {
 
     // 開いているプロジェクトのパスを取得
     public String getProjectPath(ProjectAccessor projectAccessor) throws SVNPluginException, ProjectNotFoundException {
-//        String pjPath = null;
-//        try {
         String pjPath = projectAccessor.getProjectPath();
 
         if (!isSaveProject(pjPath)) {
             throw new SVNPluginException();
         }
-//        } catch (ProjectNotFoundException pnfe) {
-//            throw pnfe;
-////            JOptionPane.showMessageDialog(null,
-////                    Messages.getMessage("err_message.common_not_open_project"));
-////            return null;
-//        }
         return pjPath;
     }
 

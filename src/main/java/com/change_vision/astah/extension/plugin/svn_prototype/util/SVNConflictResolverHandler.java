@@ -14,17 +14,21 @@ import com.change_vision.jude.api.inf.ui.IWindow;
 public class SVNConflictResolverHandler implements ISVNConflictHandler {
     IWindow window   = null;
     String  pjPath   = "";
-    boolean mergeFlg = true;
+    private boolean mergeFlg;
+    private boolean conflictFlg;
 
     // コンストラクタ
     public SVNConflictResolverHandler(IWindow arg0, String path) {
         super();
         window = arg0;
         pjPath = path;
+        mergeFlg = true;
+        conflictFlg = false;
     }
 
     @Override
     public SVNConflictResult handleConflict(SVNConflictDescription conflictDescription) throws SVNException {
+        conflictFlg = true;
         SVNConflictReason reason = conflictDescription.getConflictReason();
         SVNMergeFileSet mergeFiles = conflictDescription.getMergeFiles();
 
@@ -38,5 +42,9 @@ public class SVNConflictResolverHandler implements ISVNConflictHandler {
 
     public boolean getMergeFlg() {
         return mergeFlg;
+    }
+
+    public boolean isConflict() {
+        return conflictFlg;
     }
 }

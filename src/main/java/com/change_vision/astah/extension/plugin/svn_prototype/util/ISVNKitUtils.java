@@ -6,6 +6,7 @@ import java.io.IOException;
 
 import org.tmatesoft.svn.core.SVNException;
 import org.tmatesoft.svn.core.wc.SVNClientManager;
+import org.tmatesoft.svn.core.wc.SVNUpdateClient;
 import org.tmatesoft.svn.core.wc.SVNWCClient;
 
 import com.change_vision.astah.extension.plugin.svn_prototype.exception.SVNConflictException;
@@ -24,6 +25,8 @@ public interface ISVNKitUtils {
 
     public abstract SVNWCClient getSVNWCClient() throws SVNException, SVNPluginException;
 
+    public SVNUpdateClient getSVNUpdateClient() throws SVNException, SVNPluginException;
+
     public abstract long getBaseRevision(String destination) throws SVNException;
 
     public abstract long getBaseRevision(File destination) throws SVNException;
@@ -34,9 +37,9 @@ public interface ISVNKitUtils {
 
     public void doRevert(String fileName) throws SVNException, SVNPluginException;
 
-    public boolean doUpdate(String path) throws SVNException, SVNConflictException;
+    public boolean doUpdate(String path) throws SVNException, SVNConflictException, SVNPluginException;
 
-    public boolean doUpdate(Long revision, String path) throws SVNException, SVNConflictException;
+    public boolean doUpdate(Long revision, String path) throws SVNException, SVNConflictException, SVNPluginException;
 
     public String getBaseFile(String filePath, String fileName) throws SVNPluginException, FileNotFoundException;
 
