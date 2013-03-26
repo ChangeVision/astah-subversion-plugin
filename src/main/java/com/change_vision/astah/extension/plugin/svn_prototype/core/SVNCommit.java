@@ -58,7 +58,7 @@ public class SVNCommit {
             long baseRevision = kitUtils.getBaseRevision(new File(pjPath));
 
             // コミット対象のファイルが新規ではなく古い場合
-            if (checkConflict(baseRevision, latestRevision)) {
+            if (isConflict(baseRevision, latestRevision)) {
                 return null;
             }
 
@@ -93,7 +93,7 @@ public class SVNCommit {
         return null;
     }
 
-    public boolean checkConflict(long baseRevision, long latestRevision) {
+    public boolean isConflict(long baseRevision, long latestRevision) {
         // コミット対象のファイルが新規ではなく古い場合
         if (baseRevision > 0 && latestRevision != baseRevision){
             String conflictMessage = Messages.getMessage("info_message.commit_conflict");

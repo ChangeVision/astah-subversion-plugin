@@ -71,33 +71,6 @@ public class SVNDiffTaskTest {
     }
 
     @Test
-    public void testGetFinishFlg1() {
-        SVNDiffTask sdt = new SVNDiffTask(OLD_FILE_PATH, NEW_FILE_PATH, false);
-        boolean finishFlg = sdt.getFinishFlg();
-        assertThat(finishFlg, is(false));
-    }
-
-    @Test
-    public void testGetFinishFlg2() {
-        Preferences sp = SVNPreferences.getInstace(SVNConfigurationDialog.class);
-        sp.put(SVNPreferences.KEY_ASTAH_HOME, ASTAH_PATH);
-        SVNDiffTask sdt = new SVNDiffTask(OLD_FILE_PATH, NEW_FILE_PATH, false);
-        List<Integer> list;
-        try {
-            list = sdt.doInBackground();
-            boolean finishFlg = sdt.getFinishFlg();
-            assertThat(list, is(nullValue()));
-            assertThat(finishFlg, is(true));
-        } catch (SVNPluginException e) {
-            e.printStackTrace();
-            fail("throw SVNPluginException!");
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-            fail("throw ClassNotFoundException!");
-        }
-    }
-
-    @Test
     public void testResetFinishFlg() {
         Preferences sp = SVNPreferences.getInstace(SVNConfigurationDialog.class);
         sp.put(SVNPreferences.KEY_ASTAH_HOME, ASTAH_PATH);

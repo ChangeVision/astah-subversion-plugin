@@ -15,6 +15,7 @@ import com.change_vision.astah.extension.plugin.svn_prototype.exception.SVNConfl
 import com.change_vision.astah.extension.plugin.svn_prototype.exception.SVNPluginException;
 import com.change_vision.astah.extension.plugin.svn_prototype.task.SVNMergeTask;
 import com.change_vision.astah.extension.plugin.svn_prototype.util.ISVNKitUtils;
+import com.change_vision.astah.extension.plugin.svn_prototype.util.SVNUtils;
 import com.change_vision.jude.api.inf.exception.InvalidEditingException;
 import com.change_vision.jude.api.inf.exception.LicenseNotFoundException;
 import com.change_vision.jude.api.inf.exception.NonCompatibleException;
@@ -32,27 +33,11 @@ public class SVNMergeTaskTest {
     }
 
     @Test
-    public void testSetSelected() {
-        SVNMergeTask smt = new SVNMergeTask(null, null, null);
-        smt.setSelected(0);
-    }
-
-    @Test
-    public void testSetLatestRevision() {
-        SVNMergeTask smt = new SVNMergeTask(null, null, null);
-        smt.setLatestRevision(0);
-    }
-
-    @Test
-    public void testSetSVNInfo() {
-        SVNMergeTask smt = new SVNMergeTask(null, null, null);
-        smt.setSVNInfo(null);
-    }
-
-    @Test
     public void testDoInBackground() {
         try {
             SVNMergeTask smt = new SVNMergeTask(OLD_FILE_PATH, mock(ISVNKitUtils.class), mock(ProjectAccessor.class));
+            SVNUtils utils = mock(SVNUtils.class);
+            smt.setSVNInfo(utils);
             try {
                 smt.doInBackground();
             } catch (InvalidEditingException e) {
@@ -88,15 +73,4 @@ public class SVNMergeTaskTest {
             fail("Not yet implemented");
         }
     }
-
-    @Test
-    public void testGetSelected() {
-        SVNMergeTask smt = new SVNMergeTask(null, null, null);
-        int selected = smt.getSelected();
-        assertThat(selected, is(0));
-        smt.setSelected(2);
-        selected = smt.getSelected();
-        assertThat(selected, is(2));
-    }
-
 }

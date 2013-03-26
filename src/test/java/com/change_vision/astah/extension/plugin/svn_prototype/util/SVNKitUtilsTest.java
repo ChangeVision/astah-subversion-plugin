@@ -10,6 +10,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.tmatesoft.svn.core.auth.ISVNAuthenticationManager;
 import org.tmatesoft.svn.core.wc.SVNClientManager;
+import org.tmatesoft.svn.core.wc.SVNUpdateClient;
 import org.tmatesoft.svn.core.wc.SVNWCClient;
 
 import static org.hamcrest.core.Is.is;
@@ -21,6 +22,7 @@ public class SVNKitUtilsTest {
 
     private ISVNKitUtils kitUtils;
     private SVNUtils svnUtils;
+
     @Before
     public void before() {
         kitUtils = new SVNKitUtils();
@@ -85,6 +87,36 @@ public class SVNKitUtilsTest {
             Mockito.when(svnUtils.getAuthManager()).thenReturn(auth);
             kitUtils.setSVNUtils(svnUtils);
             SVNWCClient client = kitUtils.getSVNWCClient();
+            assertThat(client, is(notNullValue()));
+        } catch (Exception e) {
+            e.printStackTrace();
+            fail("Not yet implemented");
+        }
+    }
+
+    @Test
+    public void testGetSVNUpdateClient1() {
+        try {
+            Mockito.when(svnUtils.getLoginKind()).thenReturn(SVNUtils.LOGIN_KIND_SSH);
+            Mockito.when(svnUtils.getUser()).thenReturn("aaa");
+            Mockito.when(svnUtils.getPassword()).thenReturn("aaa");
+            kitUtils.setSVNUtils(svnUtils);
+            SVNUpdateClient client = kitUtils.getSVNUpdateClient();
+            assertThat(client, is(notNullValue()));
+        } catch (Exception e) {
+            e.printStackTrace();
+            fail("Not yet implemented");
+        }
+    }
+
+    @Test
+    public void testGetSVNUpdateClient2() {
+        try {
+            ISVNAuthenticationManager auth = mock(ISVNAuthenticationManager.class);
+            Mockito.when(svnUtils.getLoginKind()).thenReturn(SVNUtils.LOGIN_KIND_SSH);
+            Mockito.when(svnUtils.getAuthManager()).thenReturn(auth);
+            kitUtils.setSVNUtils(svnUtils);
+            SVNUpdateClient client = kitUtils.getSVNUpdateClient();
             assertThat(client, is(notNullValue()));
         } catch (Exception e) {
             e.printStackTrace();

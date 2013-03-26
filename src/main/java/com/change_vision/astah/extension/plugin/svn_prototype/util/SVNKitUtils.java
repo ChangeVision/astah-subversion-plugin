@@ -258,11 +258,8 @@ public class SVNKitUtils implements ISVNKitUtils {
     public boolean doUpdate(Long revision, String path) throws SVNException, SVNConflictException,
                                                                SVNPluginException {
         SVNConflictResolverHandler handler = new SVNConflictResolverHandler(null, path);
-//        SVNUpdateClient client = getUpdateClient(handler);
         SVNUpdateClient client = getSVNUpdateClient();
 
-//        DefaultSVNOptions options = (DefaultSVNOptions) client.getOptions();
-//        options.setConflictHandler(handler);
         ((DefaultSVNOptions) client.getOptions()).setConflictHandler(handler);
 
         try {
@@ -280,20 +277,9 @@ public class SVNKitUtils implements ISVNKitUtils {
         }
     }
 
-//    private SVNUpdateClient getUpdateClient(SVNConflictResolverHandler handler) {
-////        SVNClientManager scm = getSVNClientManager();
-//        SVNUpdateClient client = getSVNClientManager().getUpdateClient();
-//
-//        DefaultSVNOptions options = (DefaultSVNOptions) client.getOptions();
-//        options.setConflictHandler(handler);
-//
-//        return client;
-//    }
-
     public String getBaseFile(String filePath, String fileName) throws SVNPluginException, FileNotFoundException {
         // 引数チェック
-        if (filePath == null || fileName == null || filePath.length() == 0
-                || fileName.length() == 0) {
+        if (SVNUtils.isNullString(filePath) || SVNUtils.isNullString(fileName)) {
             return null;
         }
 

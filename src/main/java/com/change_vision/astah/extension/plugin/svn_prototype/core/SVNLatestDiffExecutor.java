@@ -32,6 +32,10 @@ public class SVNLatestDiffExecutor {
         this.utils.setSVNKitUtils(this.kitUtils);
     }
 
+    public void setUtils(SVNUtils utils) {
+        this.utils = utils;
+    }
+
     public Object execute() throws UnExpectedException, SVNPluginException,
                                    SVNNotConfigurationException, SVNNotCommitException,
                                    ProjectNotFoundException, SVNException,

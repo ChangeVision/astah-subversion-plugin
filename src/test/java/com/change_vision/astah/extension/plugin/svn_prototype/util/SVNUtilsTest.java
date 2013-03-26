@@ -6,12 +6,17 @@ import java.io.IOException;
 
 import javax.crypto.Cipher;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.tmatesoft.svn.core.SVNErrorCode;
 import org.tmatesoft.svn.core.SVNErrorMessage;
 import org.tmatesoft.svn.core.SVNException;
 import org.tmatesoft.svn.core.auth.ISVNAuthenticationManager;
 
+import com.change_vision.astah.extension.plugin.svn_prototype.dialog.MessageDialog;
 import com.change_vision.astah.extension.plugin.svn_prototype.exception.SVNNotConfigurationException;
 import com.change_vision.jude.api.inf.exception.LicenseNotFoundException;
 import com.change_vision.jude.api.inf.exception.NonCompatibleException;
@@ -22,13 +27,26 @@ import com.change_vision.jude.api.inf.project.ProjectAccessorFactory;
 
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
-//import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mock;
 
 public class SVNUtilsTest {
-    private final String SVN_FILE_PATH = "./svn_prototype/src/test/resources/com/change_vision/astah/extension/plugin/svn_prototype/sample.asta";
+    private final String SVN_FILE_PATH = "src/test/resources/sample.asta";
 //    private final String SVN_REPOSITORY_URL = "file:///C:/svn_repository";
 //    private final String SVN_USER = "kasaba";
 //    private final String SVN_PASSWORD = "";
+    private ISVNKitUtils kitUtils;
+    private ProjectAccessor pjAccessor;
+
+    @Before
+    public void before() {
+        pjAccessor = openProject(SVN_FILE_PATH);
+        if (pjAccessor == null) {
+            fail("ProjectAccessor = null!");
+            return;
+        }
+
+        this.kitUtils = mock(ISVNKitUtils.class);
+    }
 
     @Test
     public void testSVNUtils() {
@@ -37,34 +55,32 @@ public class SVNUtilsTest {
     }
 
     @Test
+    @Ignore("実リポジトリを作らないといけないのでスキップ")
     public void testGetPreferencesInfo() {
-        ProjectAccessor pjAccessor = openProject(SVN_FILE_PATH);
-        if (pjAccessor == null) {
-            fail("ProjectAccessor = null!");
-            return;
-        }
-
-        SVNUtils utils = new SVNUtils();
-        boolean result;
         try {
+            String pjPath = pjAccessor.getProjectPath();
+            Mockito.when(kitUtils.getDefaultRepositoryURL(pjPath)).thenReturn(SVN_FILE_PATH);
+            SVNUtils utils = new SVNUtils();
+            utils.setSVNKitUtils(kitUtils);
+            boolean result;
             result = utils.getPreferencesInfo("キャンセルメッセージ");
             assertThat(result, is(true));
         } catch (SVNNotConfigurationException e) {
             e.printStackTrace();
             fail("throw SVNNotConfigurationException!");
+        } catch (SVNException e) {
+            e.printStackTrace();
+            fail("throw SVNException!");
+        } catch (ProjectNotFoundException e) {
+            e.printStackTrace();
+            fail("throw ProjectNotFoundException!");
         }
     }
 
     @Test
     public void testChkNotSaveProject() {
-        ProjectAccessor pjAccessor = openProject(SVN_FILE_PATH);
-        if (pjAccessor == null) {
-            fail("ProjectAccessor = null!");
-            return;
-        }
-
         boolean result = SVNUtils.isSaveProject(SVN_FILE_PATH);
-        assertThat(result, is(false));
+        assertThat(result, is(true));
     }
 
     @Test
@@ -118,8 +134,10 @@ public class SVNUtilsTest {
     @Test
     public void testChkLoginError1() {
         SVNException se = new SVNException(SVNErrorMessage.create(SVNErrorCode.RA_NOT_AUTHORIZED , "Authentication required for AAA"));
+        MessageDialog messageDialog = mock(MessageDialog.class);
         System.out.println(se.getMessage());
         SVNUtils utils = new SVNUtils();
+        SVNUtils.setMessageDialog(messageDialog);
         boolean result = utils.isLoginError(se);
         
         assertThat(result, is(true));
@@ -155,29 +173,14 @@ public class SVNUtilsTest {
     }
 
     @Test
-    public void testGetAuthManager() {
-        ProjectAccessor pjAccessor = openProject(SVN_FILE_PATH);
-        if (pjAccessor == null) {
-            fail("ProjectAccessor = null!");
-            return;
-        }
-
-        SVNUtils utils = new SVNUtils();
-        try {
-            utils.getPreferencesInfo("�L�����Z�����b�Z�[�W");
-        } catch (SVNNotConfigurationException e) {
-            e.printStackTrace();
-            fail("throw SVNNotConfigurationException!");
-        }
-        ISVNAuthenticationManager manager = utils.getAuthManager();
-        assertThat(manager, is(notNullValue()));
-    }
-
-    @Test
     public void testGetDefaultRepositoryURL1() {
         String url = null;
         try {
+            String pjPath = pjAccessor.getProjectPath();
+            Mockito.when(kitUtils.getDefaultRepositoryURL(pjPath)).thenReturn(SVN_FILE_PATH);
+
             SVNUtils utils = new SVNUtils();
+            utils.setSVNKitUtils(kitUtils);
             url = utils.getDefaultRepositoryURL();
         } catch (SVNException e) {
             fail("Not yet implemented");
@@ -188,30 +191,6 @@ public class SVNUtilsTest {
         }
         assertThat(url, is(notNullValue()));
     }
-
-//    @Test
-//    public void testGetDefaultRepositoryURL2() {
-//        String url = null;
-//        try {
-//            SVNUtils utils = new SVNUtils();
-//            url = utils.getDefaultRepositoryURL(SVN_FILE_PATH);
-//        } catch (SVNException e) {
-//            fail("Not yet implemented");
-//        }
-//        assertThat(url, is(notNullValue()));
-//    }
-//
-//    @Test
-//    public void testChkEditingProject() {
-//        ProjectAccessor pjAccessor = openProject(SVN_FILE_PATH);
-//        if (pjAccessor == null) {
-//            fail("ProjectAccessor = null!");
-//            return;
-//        }
-//
-//        boolean result = SVNUtils.chkEditingProject();
-//        assertThat(result, is(false));
-//    }
 
     @Test
     public void testEscapeSpaceForMac() {
@@ -246,4 +225,8 @@ public class SVNUtilsTest {
         }
     }
 
+    @After
+    public void after() {
+        pjAccessor.close();
+    }
 }

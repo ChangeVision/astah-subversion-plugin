@@ -43,6 +43,10 @@ public class SVNMergeTask {
         this.selected = selected;
     }
 
+    public int getSelected(){
+        return selected;
+    }
+
     public void setLatestRevision(long latest){
         this.revision = latest;
     }
@@ -144,9 +148,5 @@ public class SVNMergeTask {
         projectAccessor.open(pjPath);
 
         return null;
-    }
-
-    public int getSelected(){
-    	return selected;
     }
 }

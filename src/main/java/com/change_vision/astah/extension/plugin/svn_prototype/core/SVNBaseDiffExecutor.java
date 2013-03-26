@@ -34,6 +34,10 @@ public class SVNBaseDiffExecutor {
         this.utils.setSVNKitUtils(this.kitUtils);
     }
 
+    public void setUtils(SVNUtils utils) {
+        this.utils = utils;
+    }
+
     public void setMessageDialog(MessageDialog messageDialog) {
         this.messageDialog = messageDialog;
     }
@@ -74,7 +78,7 @@ public class SVNBaseDiffExecutor {
 
     public void displayDiff(String pjPath, String workFile) throws SVNPluginException {
         // 引数チェック
-        if (pjPath == null || workFile == null || pjPath.length() == 0 || workFile.length() == 0) {
+        if (SVNUtils.isNullString(pjPath) || SVNUtils.isNullString(workFile)) {
             throw new SVNPluginException(Messages.getMessage("err_message.common_file_not_found"));
         }
 
