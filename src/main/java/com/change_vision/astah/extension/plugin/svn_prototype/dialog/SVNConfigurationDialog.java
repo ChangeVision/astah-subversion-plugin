@@ -326,6 +326,7 @@ public class SVNConfigurationDialog extends KeyDialog {
                      || (sshRadio.isSelected() && sshSavePw.isSelected())){
                         // 保存してあるSubversionログイン情報取得
                         SVNUtils utils = new SVNUtils();
+                        utils.setSVNKitUtils(kitUtils);
                         if (utils.getPreferencesInfo(Messages.getMessage("err_message.common_svn_error"))){
                             // 使用して最新リビジョン番号を取得することで、
                             // 保存したユーザ、パスワードが妥当であることを確認する。
