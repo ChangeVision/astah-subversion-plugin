@@ -1,6 +1,6 @@
 <configuration>
 
-  <define name="astah.edition" class="com.change_vision.astah.extension.dsm.internal.AstahEditionPropertyDefiner">
+  <define name="astah.edition" class="com.change_vision.astah.extension.svn_prototype.internal.AstahEditionPropertyDefiner">
   </define>
 
   <appender name="STDOUT"
@@ -32,7 +32,6 @@
       </pattern>
     </encoder>
   </appender>
-  <!-- turn OFF all logging (children can override) -->
   
   <root level="debug">
     <appender-ref ref="FILE" />
