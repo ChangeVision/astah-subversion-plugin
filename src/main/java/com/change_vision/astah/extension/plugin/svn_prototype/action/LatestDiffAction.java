@@ -2,6 +2,8 @@ package com.change_vision.astah.extension.plugin.svn_prototype.action;
 
 import java.io.FileNotFoundException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.tmatesoft.svn.core.SVNException;
 
 import com.change_vision.astah.extension.plugin.svn_prototype.Messages;
@@ -19,32 +21,34 @@ import com.change_vision.jude.api.inf.ui.IWindow;
 
 public class LatestDiffAction implements IPluginActionDelegate {
 
+    private static final Logger logger = LoggerFactory.getLogger(LatestDiffAction.class);
+
     @Override
     public Object run(IWindow arg0) throws UnExpectedException {
         try {
             new SVNLatestDiffExecutor(ProjectAccessorFactory.getProjectAccessor(), new SVNKitUtils()).execute();
         } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+            logger.error("Error has occurred.", e);
             throw new UnExpectedException();
         } catch (SVNPluginException e) {
-            e.printStackTrace();
+            logger.error("Error has occurred.", e);
             new MessageDialog().showMessage(e.getMessage());
         } catch (SVNNotConfigurationException e) {
-            e.printStackTrace();
+            logger.error("Error has occurred.", e);
             new MessageDialog().showMessage(e.getMessage());
         } catch (SVNNotCommitException e) {
-            e.printStackTrace();
+            logger.error("Error has occurred.", e);
             new MessageDialog().showMessage(e.getMessage());
         } catch (ProjectNotFoundException e) {
-            e.printStackTrace();
+            logger.error("Error has occurred.", e);
             new MessageDialog().showKeyMessage("err_message.common_not_open_project");
         } catch (SVNException e) {
-            e.printStackTrace();
+            logger.error("Error has occurred.", e);
             if (!(new SVNUtils()).isLoginError(e)){
                 new MessageDialog().showMessage(Messages.getMessage("err_message.common_svn_error"));
             }
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            logger.error("Error has occurred.", e);
             new MessageDialog().showMessage(Messages.getMessage("err_message.common_io_error"));
         }
         return null;
