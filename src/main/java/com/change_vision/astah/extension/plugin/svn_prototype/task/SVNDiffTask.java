@@ -2,6 +2,7 @@ package com.change_vision.astah.extension.plugin.svn_prototype.task;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.prefs.Preferences;
 
@@ -43,28 +44,34 @@ public class SVNDiffTask {
 
             String os = System.getProperty("os.name");
 
-            String[] diffCommand = null;
+            List<String> diffCommand = new ArrayList<String>();
+            SVNUtils utils = new SVNUtils();
 
             if (os.matches("^Mac.*")) {
                 if (commandPath.equals(currentDir)){
                     // カレントディレクトリと保存してあるastahインストールディレクトリが同じ場合
                     commandPath = "." + File.separator;
                 } else {
-                    // カレントディレクトリと保存してあるastahインストールディレクトリが同じ場合
+                    // カレントディレクトリと保存してあるastahインストールディレクトリが違う場合
                     if (!commandPath.endsWith(File.separator)){
                         commandPath = commandPath + File.separator;
                     }
-                    String jarPath = (new SVNUtils()).getMacAstahPath();
+                    String jarPath = utils.getMacAstahPath();
                     directFlg = true;
-                    diffCommand = new String[]{"java",
-                                               "-Xms64m",
-                                               "-Xmx1024m",
-                                               "-cp",
-                                               jarPath,
-                                               "com.change_vision.jude.cmdline.JudeCommandRunner",
-                                               "-diff",
-                                               oldFile,
-                                               newFile};
+                    diffCommand.add("java");
+                    diffCommand.add("-Xms64m");
+                    diffCommand.add("-Xmx1024m");
+                    diffCommand.add("-cp");
+                    diffCommand.add(jarPath);
+                    diffCommand.add(utils.isSystemSafety()
+                            ? "net.astah.safety.bootstrap.cmdline.SafetyCommandDispatcher"
+                            : "com.change_vision.jude.cmdline.JudeCommandRunner");
+                    diffCommand.add("-diff");
+                    diffCommand.add(oldFile);
+                    diffCommand.add(newFile);
+                    if (utils.isSystemSafety()) {
+                        diffCommand.add("-nomerge");
+                    }
                 }
             } else if (os.matches("^Windows.*")) {
                 if (!commandPath.endsWith(File.separator)){
@@ -72,16 +79,24 @@ public class SVNDiffTask {
                 }
 
                 directFlg = true;
-                diffCommand = new String[]{"java",
-                                           "-Xms16m",
-                                           "-Xmx384m",
-                                           "-Dsun.java2d.noddraw=true",
-                                           "-cp",
-                                           commandPath + "astah-pro.jar",
-                                           "com.change_vision.jude.cmdline.JudeCommandRunner",
-                                           "-diff",
-                                           oldFile,
-                                           newFile};
+                diffCommand.add("java");
+                diffCommand.add("-Xms16m");
+                diffCommand.add("-Xmx384m");
+                diffCommand.add("-Dsun.java2d.noddraw=true");
+                diffCommand.add("-cp");
+                if (utils.isSystemSafety()) {
+                    diffCommand.add(commandPath + "astahsystemsafety.jar");
+                    diffCommand.add("net.astah.safety.bootstrap.cmdline.SafetyCommandDispatcher");
+                } else {
+                    diffCommand.add(commandPath + "astah-pro.jar");
+                    diffCommand.add("com.change_vision.jude.cmdline.JudeCommandRunner");
+                }
+                diffCommand.add("-diff");
+                diffCommand.add(oldFile);
+                diffCommand.add(newFile);
+                if (utils.isSystemSafety()) {
+                    diffCommand.add("-nomerge");
+                }
             }
 
             if (!directFlg){
@@ -97,13 +112,21 @@ public class SVNDiffTask {
                 } else {
                     command = commandPath + File.separator;
                 }
-                command = command + "astah-command" + commandExtension;
+                String astahCommand = utils.isSystemSafety() ? "astahsystemsafety-command"
+                        : "astah-command";
+                command = command + astahCommand + commandExtension;
 
-                diffCommand = new String[]{command, "-diff", oldFile, newFile};
+                diffCommand.add(command);
+                diffCommand.add("-diff");
+                diffCommand.add(oldFile);
+                diffCommand.add(newFile);
+                if (utils.isSystemSafety()) {
+                    diffCommand.add("-nomerge");
+                }
             }
 
             Runtime r = Runtime.getRuntime();
-            Process p = r.exec(diffCommand);
+            Process p = r.exec(diffCommand.toArray(new String[diffCommand.size()]));
 
             SvnDiffInputStreamThread  pis;
             SvnDiffInputStreamThread  pes;
