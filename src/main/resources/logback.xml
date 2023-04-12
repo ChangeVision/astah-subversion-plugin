@@ -1,6 +1,6 @@
 <configuration>
 
-  <define name="astah.edition" class="com.change_vision.astah.extension.svn_prototype.internal.AstahEditionPropertyDefiner">
+  <define name="astah.edition" class="com.change_vision.astah.extension.plugin.svn_prototype.internal.AstahEditionPropertyDefiner">
   </define>
 
   <appender name="STDOUT"
