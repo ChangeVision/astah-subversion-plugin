@@ -11,7 +11,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.change_vision.astah.extension.plugin.svn_prototype</groupId>
   <artifactId>svn_prototype</artifactId>
-  <version>1.0.16</version>
+  <version>1.1.0</version>
   <packaging>jar</packaging>
   <name>%bundle.name</name>
   <description>%bundle.description</description>
@@ -184,7 +184,7 @@
       <plugin>
         <groupId>org.apache.felix</groupId>
         <artifactId>maven-bundle-plugin</artifactId>
-        <version>2.3.6</version>
+        <version>5.1.8</version>
         <extensions>true</extensions>
         <executions>
           <execution>
@@ -256,7 +256,7 @@
 	<dependency>
 		<groupId>org.tmatesoft.svnkit</groupId>
 		<artifactId>svnkit</artifactId>
-		<version>1.7.4-v1</version>
+		<version>1.10.11</version>
 	</dependency>
     <dependency>
       <groupId>com.change_vision.astah</groupId>
@@ -289,6 +289,12 @@
       <artifactId>junit</artifactId>
       <version>4.13.1</version>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+        <groupId>org.mockito</groupId>
+        <artifactId>mockito-core</artifactId>
+        <version>4.11.0</version>
+        <scope>test</scope>
     </dependency>
 	<dependency>
 		<groupId>ch.qos.logback</groupId>

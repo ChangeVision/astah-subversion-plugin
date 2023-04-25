@@ -22,16 +22,16 @@ public class MessagesTest {
     public void testGetMessage() {
         String path = "com.change_vision.astah.extension.plugin.svn_prototype.message.message";
         Messages.setupForTest(path, this.getClass());
-        String message = Messages.getMessage("info_message.message_variation", "TEST", "test", "ƒeƒXƒg", "‚Ä‚·‚Æ", "Ã½Ä");
-        assertThat(message, not("ƒeƒXƒgƒƒbƒZ[ƒW:TEST, test, ƒeƒXƒg, ‚Ä‚·‚Æ, Ã½Ä"));
-        assertThat(message, is("ƒeƒXƒgƒƒbƒZ[ƒW:TEST,test,ƒeƒXƒg,‚Ä‚·‚Æ,Ã½Ä"));
+        String message = Messages.getMessage("info_message.message_variation", "TEST", "test", "ãƒ†ã‚¹ãƒˆ", "ã¦ã™ã¨", "ï¾ƒï½½ï¾„");
+        assertThat(message, not("ãƒ†ã‚¹ãƒˆãƒ¡ãƒƒã‚»ãƒ¼ã‚¸:TEST, test, ãƒ†ã‚¹ãƒˆ, ã¦ã™ã¨, ï¾ƒï½½ï¾„"));
+        assertThat(message, is("ãƒ†ã‚¹ãƒˆãƒ¡ãƒƒã‚»ãƒ¼ã‚¸:TEST,test,ãƒ†ã‚¹ãƒˆ,ã¦ã™ã¨,ï¾ƒï½½ï¾„"));
     }
 
     @Test
     public void testProvideMessage() {
         Messages messages = new Messages();
         String message = messages.provideMessage("progress_default_message");
-        assertThat(message, is("‚µ‚Î‚ç‚­‚¨‘Ò‚¿‚­‚¾‚³‚¢"));
+        assertThat(message, is("ã—ã°ã‚‰ããŠå¾…ã¡ãã ã•ã„"));
     }
 
     @Test

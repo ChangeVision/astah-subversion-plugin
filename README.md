@@ -3,7 +3,7 @@ Subversion 簡易操作プラグイン
 
 **バージョン**
 ----------------
-1.0.16
+1.1.0
 
 **利用可能なAstah**
 ----------------
@@ -24,7 +24,7 @@ Astah Professional 6.7以上
 
 **インストール方法**
 ----------------
-0. [jarファイルをダウンロードします](http://astah.change-vision.com/plugins/svn_prototype/1.0.16.html)
+0. [jarファイルをダウンロードします](http://astah.change-vision.com/plugins/svn_prototype/1.1.0.html)
 1. Astahのインストールフォルダ配下のpluginsフォルダに本プラグインのjarファイルを置きます。
 2. Astahを起動します。
 3. メニューバーの「ツール」の一番下に「簡易SVN操作」と表示されていることを確認します。
