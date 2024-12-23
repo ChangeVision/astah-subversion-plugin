@@ -6,12 +6,12 @@
     <bundle.namespace>com.change_vision.astah.extension.plugin.svn_prototype</bundle.namespace>
     <plugin.install>true</plugin.install>
     <astah.version>6.6</astah.version>
-    <astah.edition>pro</astah.edition>
+    <astah.edition>pro,sysml,safety</astah.edition>
   </properties>
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.change_vision.astah.extension.plugin.svn_prototype</groupId>
   <artifactId>svn_prototype</artifactId>
-  <version>1.1.0</version>
+  <version>1.2.0</version>
   <packaging>jar</packaging>
   <name>%bundle.name</name>
   <description>%bundle.description</description>
@@ -161,11 +161,11 @@
       </plugin>
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>2.3.2</version>
+        <version>3.11.0</version>
         <configuration>
           <encoding>UTF-8</encoding>
-          <source>1.6</source>
-          <target>1.6</target>
+          <source>21</source>
+          <target>21</target>
         </configuration>
       </plugin>
       <plugin>
