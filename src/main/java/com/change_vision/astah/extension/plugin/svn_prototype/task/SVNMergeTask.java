@@ -69,7 +69,7 @@ public class SVNMergeTask {
         String fileName = SVNUtils.getFileName(pjPath);
         String filePath = SVNUtils.getFilePath(pjPath);
         String workFile = filePath + "work." + fileName;
-        String extension = utils.isSystemSafety() ? ".axmz" : ".asta";
+        String extension = utils.isSystemSafety() || utils.isSysML() ? ".axmz" : ".asta";
         String newFileName = pjPath + ".r" + revision + extension;
 
         if (selected == SVNSelectMergeDialog.CURRENT_PROJECT) {

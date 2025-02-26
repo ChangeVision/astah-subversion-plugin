@@ -125,7 +125,7 @@ public class SVNUpdate {
                 // 競合が発生した場合の処理
 
                 // 競合時に発生した「～.asta.r…」ファイルのうち、最新リビジョンの方に拡張子「.asta」をつける
-                String extension = utils.isSystemSafety() ? ".axmz" : ".asta";
+                String extension = utils.isSystemSafety() || utils.isSysML() ? ".axmz" : ".asta";
                 String newFileName = pjPath + ".r" + revision + extension;
                 utils.renameFile(pjPath + ".r" + revision, newFileName);
 
