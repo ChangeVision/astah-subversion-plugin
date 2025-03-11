@@ -11,7 +11,9 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import com.change_vision.astah.extension.plugin.svn_prototype.exception.SVNNotConfigurationException;
 import com.change_vision.astah.extension.plugin.svn_prototype.exception.SVNPluginException;
@@ -32,6 +34,7 @@ public class SVNLatestDiffExecutorTest {
 
     private ProjectAccessor pjAccessor;
     private ISVNKitUtils kitUtils;
+    private SVNUtils utils;
 
     @Before
     public void before() {
@@ -40,12 +43,15 @@ public class SVNLatestDiffExecutorTest {
             fail("ProjectAccessor = null!");
         }
         kitUtils = mock(ISVNKitUtils.class);
+        utils = mock(SVNUtils.class);
     }
 
     @Test
     public void testInitializeSVN() {
             SVNLatestDiffExecutor diffExec = new SVNLatestDiffExecutor(pjAccessor, kitUtils);
             try {
+                when(utils.getPreferencesInfo(anyString())).thenReturn(true);
+                diffExec.setUtils(utils);
                 diffExec.initializeSVN();
             } catch (SVNNotConfigurationException e) {
                 e.printStackTrace();

@@ -63,13 +63,17 @@ public class SVNDiffTask {
                     diffCommand.add("-Xmx1024m");
                     diffCommand.add("-cp");
                     diffCommand.add(jarPath);
-                    diffCommand.add(utils.isSystemSafety()
-                            ? "net.astah.safety.bootstrap.cmdline.SafetyCommandDispatcher"
-                            : "com.change_vision.jude.cmdline.JudeCommandRunner");
+                    if (utils.isSystemSafety()) {
+                        diffCommand.add("net.astah.safety.bootstrap.cmdline.SafetyCommandDispatcher");
+                    } else if (utils.isSysML()) {
+                        diffCommand.add("net.astah.sysml.bootstrap.cmdline.SysMLCommandDispatcher");
+                    } else {
+                        diffCommand.add("com.change_vision.jude.cmdline.JudeCommandRunner");
+                    }
                     diffCommand.add("-diff");
                     diffCommand.add(oldFile);
                     diffCommand.add(newFile);
-                    if (utils.isSystemSafety()) {
+                    if (utils.isSystemSafety() || utils.isSysML()) {
                         diffCommand.add("-nomerge");
                     }
                 }
@@ -87,6 +91,9 @@ public class SVNDiffTask {
                 if (utils.isSystemSafety()) {
                     diffCommand.add(commandPath + "astahsystemsafety.jar");
                     diffCommand.add("net.astah.safety.bootstrap.cmdline.SafetyCommandDispatcher");
+                } else if (utils.isSysML()) {
+                    diffCommand.add(commandPath + "astah-sys.jar");
+                    diffCommand.add("net.astah.sysml.bootstrap.cmdline.SysMLCommandDispatcher");
                 } else {
                     diffCommand.add(commandPath + "astah-pro.jar");
                     diffCommand.add("com.change_vision.jude.cmdline.JudeCommandRunner");
@@ -94,7 +101,7 @@ public class SVNDiffTask {
                 diffCommand.add("-diff");
                 diffCommand.add(oldFile);
                 diffCommand.add(newFile);
-                if (utils.isSystemSafety()) {
+                if (utils.isSystemSafety() || utils.isSysML()) {
                     diffCommand.add("-nomerge");
                 }
             }
@@ -112,15 +119,21 @@ public class SVNDiffTask {
                 } else {
                     command = commandPath + File.separator;
                 }
-                String astahCommand = utils.isSystemSafety() ? "astahsystemsafety-command"
-                        : "astah-command";
+                String astahCommand;
+                if (utils.isSystemSafety()) {
+                    astahCommand = "astahsystemsafety-command";
+                } else if (utils.isSysML()) {
+                    astahCommand = "astahsysml-command";
+                } else {
+                    astahCommand = "astah-command";
+                }
                 command = command + astahCommand + commandExtension;
 
                 diffCommand.add(command);
                 diffCommand.add("-diff");
                 diffCommand.add(oldFile);
                 diffCommand.add(newFile);
-                if (utils.isSystemSafety()) {
+                if (utils.isSystemSafety() || utils.isSysML()) {
                     diffCommand.add("-nomerge");
                 }
             }

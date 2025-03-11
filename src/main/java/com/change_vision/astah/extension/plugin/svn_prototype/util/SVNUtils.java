@@ -501,14 +501,24 @@ public class SVNUtils {
             path = path + File.separator;
         }
 
-        String jarPath = isSystemSafety()
-                ? "astah system safety.app/Contents/Resources/Java/astahsystemsafety.jar"
-                : "astah professional.app/Contents/Resources/Java/astah-pro.jar";
+        String jarPath;
+        if (isSystemSafety()) {
+            jarPath = "astah system safety.app/Contents/Resources/Java/astahsystemsafety.jar";
+        } else if (isSysML()) {
+            jarPath = "astah sysml.app/Contents/Resources/Java/astah-sys.jar";
+        } else {
+            jarPath = "astah professional.app/Contents/Resources/Java/astah-pro.jar";
+        }
         String filePath = path + jarPath;
         if (!(new File(filePath).exists())) {
-            String alternateJarPath = isSystemSafety()
-                    ? "astah system safety.app/Contents/Java/astahsystemsafety.jar"
-                    : "astah professional.app/Contents/Java/astah-pro.jar";
+            String alternateJarPath;
+            if (isSystemSafety()) {
+                alternateJarPath = "astah system safety.app/Contents/Java/astahsystemsafety.jar";
+            } else if (isSysML()) {
+                alternateJarPath = "astah sysml.app/Contents/Java/astah-sys.jar";
+            } else {
+                alternateJarPath = "astah professional.app/Contents/Java/astah-pro.jar";
+            }
             filePath = path + alternateJarPath;
             if (!(new File(filePath).exists())) {
                 throw new SVNPluginException(Messages.getMessage("err_message.common_file_not_found"));
@@ -520,5 +530,10 @@ public class SVNUtils {
     public boolean isSystemSafety() {
         String edition = getProjectAccessor().getAstahEdition();
         return "SystemSafety".equals(edition);
+    }
+
+    public boolean  isSysML() {
+        String edition = getProjectAccessor().getAstahEdition();
+        return "sysML".equals(edition);
     }
 }
